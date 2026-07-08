@@ -5,7 +5,7 @@ GitCode asc-devkit 算子开发文档的 AI 亲和性全量诊断报告（35 条
 ## 在线访问
 
 - 本地：`python3 -m http.server 8899` → http://localhost:8899/
-- GitCode Pages：`https://<你的用户名>.gitcode.io/asc-devkit-ai-affinity-report/`
+- GitHub Pages：**https://liminshuo.github.io/asc-devkit-ai-affinity-report/**
 
 ## 部署到 GitCode Pages
 
