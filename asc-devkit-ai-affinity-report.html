@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>asc-devkit AI 亲和诊断报告 · GitCode CANN</title>
+<style>
+  :root {
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --surface2: #f0f2f7;
+    --border: #dde1ec;
+    --text: #1a1d2e;
+    --text-muted: #5a6080;
+    --accent: #4f46e5;
+    --accent-light: #4338ca;
+    --green: #059669;
+    --yellow: #d97706;
+    --red: #dc2626;
+    --orange: #ea580c;
+    --p0: #dc2626;
+    --p1: #ea580c;
+    --p2: #d97706;
+    --p3: #2563eb;
+    --na: #6b7280;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; font-size: 14px; line-height: 1.6; }
+  
+  /* NAV */
+  .nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 0; padding: 0 24px; }
+  .nav-brand { font-size: 13px; font-weight: 600; color: var(--text-muted); padding: 14px 16px 14px 0; border-right: 1px solid var(--border); white-space: nowrap; }
+  .nav-tabs { display: flex; }
+  .nav-tab { padding: 14px 20px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-muted); border-bottom: 2px solid transparent; transition: all .15s; white-space: nowrap; background: none; border-top: none; border-left: none; border-right: none; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--accent-light); border-bottom-color: var(--accent); }
+
+  /* MAIN */
+  .page { display: none; max-width: 1200px; margin: 0 auto; padding: 32px 24px 64px; }
+  .page.active { display: block; }
+
+  /* SECTIONS */
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  h2 { font-size: 16px; font-weight: 600; color: var(--accent-light); margin: 36px 0 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+  h3 { font-size: 14px; font-weight: 600; margin: 24px 0 10px; }
+  p { color: var(--text-muted); margin-bottom: 10px; }
+  code { background: var(--surface2); padding: 1px 5px; border-radius: 3px; font-family: 'SF Mono', Consolas, monospace; font-size: 12px; color: #4338ca; border: 1px solid var(--border); }
+  a { color: var(--accent-light); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* CARDS */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin-bottom: 12px; }
+  .card-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+
+  /* BADGES */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .badge-green { background: rgba(16,185,129,.15); color: #10b981; }
+  .badge-yellow { background: rgba(245,158,11,.15); color: #f59e0b; }
+  .badge-red { background: rgba(239,68,68,.15); color: #ef4444; }
+  .badge-orange { background: rgba(249,115,22,.15); color: #f97316; }
+  .badge-blue { background: rgba(59,130,246,.15); color: #60a5fa; }
+  .badge-gray { background: rgba(107,114,128,.15); color: #9ca3af; }
+  .badge-p0 { background: rgba(239,68,68,.15); color: #ef4444; }
+  .badge-p1 { background: rgba(249,115,22,.15); color: #f97316; }
+  .badge-p2 { background: rgba(245,158,11,.15); color: #f59e0b; }
+  .badge-p3 { background: rgba(59,130,246,.15); color: #60a5fa; }
+
+  /* STAT GRID */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+  .stat-num { font-size: 28px; font-weight: 700; }
+  .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .stat-missing .stat-num { color: var(--red); }
+  .stat-improve .stat-num { color: var(--yellow); }
+  .stat-pass .stat-num { color: var(--green); }
+  .stat-na .stat-num { color: var(--na); }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
+  th { background: var(--surface2); color: var(--text-muted); font-weight: 600; padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(79,70,229,.03); }
+
+  /* PROBE TABLE */
+  .probe-ok { color: var(--green); }
+  .probe-warn { color: var(--yellow); }
+  .probe-fail { color: var(--red); }
+
+  /* ISSUE CARD */
+  .issue-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .issue-header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .issue-title { font-size: 14px; font-weight: 600; }
+  .issue-section { margin-bottom: 14px; }
+  .issue-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin-bottom: 6px; }
+  .issue-body { color: var(--text); font-size: 13px; line-height: 1.7; }
+  blockquote { background: #f0f4ff; border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 0 4px 4px 0; font-size: 13px; color: var(--text-muted); margin: 8px 0; }
+  ol, ul { padding-left: 20px; color: var(--text-muted); }
+  li { margin-bottom: 4px; }
+
+  /* IMPROVE CARD */
+  .improve-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .improve-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+  .improve-col-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin-bottom: 6px; }
+  .improve-col-body { font-size: 13px; color: var(--text); }
+  .checkbox-row { margin-top: 14px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); }
+  input[type=checkbox] { accent-color: var(--accent); }
+
+  /* LAYER SECTION */
+  .layer-header { display: flex; align-items: center; gap: 10px; margin: 28px 0 14px; }
+  .layer-title { font-size: 16px; font-weight: 700; }
+  .layer-line { flex: 1; height: 1px; background: var(--border); }
+
+  /* JOURNEY */
+  .journey { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 24px; }
+  .journey-step { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .journey-num { font-size: 20px; margin-bottom: 4px; }
+  .journey-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+  .journey-page { font-size: 12px; margin-top: 4px; }
+  .journey-url { font-size: 11px; color: var(--accent-light); word-break: break-all; }
+
+  /* SUMMARY ROW */
+  .summary-row { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 20px; }
+  .summary-item { font-size: 13px; }
+  .summary-num { font-weight: 700; }
+
+  /* COMPARE */
+  .cmp-verdict { background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; margin-bottom: 24px; }
+  .cmp-verdict p { color: var(--text); margin-bottom: 8px; }
+  .cmp-verdict p:last-child { margin-bottom: 0; }
+  .cmp-win { font-weight: 700; color: var(--green); }
+  .cmp-lose { color: var(--red); }
+  .cmp-tie { color: var(--yellow); font-weight: 600; }
+  .cmp-note { font-size: 13px; color: var(--text-muted); background: var(--surface2); border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; line-height: 1.7; }
+  .cmp-section-label { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); margin-bottom: 8px; }
+  .cmp-section-label::before { content: ''; display: inline-block; width: 3px; height: 14px; background: var(--accent); border-radius: 2px; }
+  .cmp-flow { display: flex; align-items: stretch; gap: 0; margin: 16px 0 24px; flex-wrap: wrap; }
+  .cmp-flow-step { flex: 1; min-width: 140px; background: var(--surface); border: 1px solid var(--border); padding: 12px 14px; position: relative; }
+  .cmp-flow-step:first-child { border-radius: 8px 0 0 8px; }
+  .cmp-flow-step:last-child { border-radius: 0 8px 8px 0; }
+  .cmp-flow-step + .cmp-flow-step { border-left: none; }
+  .cmp-flow-step::after { content: '→'; position: absolute; right: -10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 16px; z-index: 1; background: var(--bg); padding: 0 2px; }
+  .cmp-flow-step:last-child::after { display: none; }
+  .cmp-flow-q { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+  .cmp-flow-layer { font-size: 13px; font-weight: 700; color: var(--text); }
+  .cmp-grade { font-size: 18px; font-weight: 700; text-align: center; }
+  .cmp-grade--ok { color: var(--green); }
+  .cmp-grade--warn { color: var(--yellow); }
+  .cmp-grade--fail { color: var(--red); }
+  .cmp-grade--na { color: var(--na); }
+  .cmp-legend-inline { display: flex; gap: 20px; font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+  .cmp-action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+  .cmp-action-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; }
+  .cmp-action-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+  .cmp-action-card ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text-muted); }
+  .cmp-action-card li { margin-bottom: 6px; }
+  .cmp-action-card--shared { border-top: 3px solid var(--p0); }
+  .cmp-action-card--ascend { border-top: 3px solid #f97316; }
+  .cmp-action-card--gitcode { border-top: 3px solid var(--accent); }
+  .cmp-layer-row td:first-child { font-weight: 600; white-space: nowrap; }
+  details.cmp-appendix { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-top: 32px; }
+  details.cmp-appendix summary { padding: 14px 18px; cursor: pointer; font-weight: 600; font-size: 13px; color: var(--text-muted); list-style: none; }
+  details.cmp-appendix summary::-webkit-details-marker { display: none; }
+  details.cmp-appendix summary::before { content: '▶ '; font-size: 10px; }
+  details.cmp-appendix[open] summary::before { content: '▼ '; }
+  details.cmp-appendix .cmp-appendix-body { padding: 0 18px 18px; border-top: 1px solid var(--border); }
+
+  @media (max-width: 768px) {
+    .improve-grid { grid-template-columns: 1fr; }
+    .cmp-action-grid { grid-template-columns: 1fr; }
+    .cmp-flow-step { border-radius: 8px !important; border-left: 1px solid var(--border) !important; margin-bottom: 8px; }
+    .cmp-flow-step::after { display: none; }
+    .nav-tab { padding: 12px 12px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">📋 AI 亲和诊断</div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showTab('overview')">① 研究概览</button>
+      <button class="nav-tab" onclick="showTab('issues')">② 实测问题</button>
+      <button class="nav-tab" onclick="showTab('improve')">③ 改造建议</button>
+      <button class="nav-tab" onclick="showTab('compare')">④ 平台对比</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     菜单 1 · 研究概览
+════════════════════════════════════════════ -->
+<div id="tab-overview" class="page active">
+
+  <h1>asc-devkit 文档 AI 亲和诊断报告</h1>
+  <p style="color:var(--text-muted); margin-bottom:24px;">基于 35 条亲和原则全量实测 · 精简版（仅展示非达标项）</p>
+
+  <div class="card" style="margin-bottom:28px;">
+    <table>
+      <tr><td style="color:var(--text-muted);width:140px;">诊断日期</td><td>2026-07-07</td></tr>
+      <tr><td style="color:var(--text-muted);">诊断对象</td><td>CANN asc-devkit · 算子开发文档</td></tr>
+      <tr><td style="color:var(--text-muted);">文档站 URL</td><td><a href="https://gitcode.com/cann/asc-devkit/tree/master/docs" target="_blank">https://gitcode.com/cann/asc-devkit/tree/master/docs</a></td></tr>
+      <tr><td style="color:var(--text-muted);">审计分支</td><td>master（稳定版标签：9.1.0）</td></tr>
+      <tr><td style="color:var(--text-muted);">审计方式</td><td>联网大模型问答实测 + 无 JS 抓取 + DOM/元数据静态审计 + 内容规则检测</td></tr>
+      <tr><td style="color:var(--text-muted);">采样页面</td><td>quick_start.md · asc_950_feature_guide.md · docs/guide/index.md · docs/api/README.md · docs/guide/编程指南/编程模型/编程模型概述.md</td></tr>
+    </table>
+  </div>
+
+  <h2>站点探测结果</h2>
+  <table>
+    <thead><tr><th>检测项</th><th>结果</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td><code>/llms.txt</code></td><td><span class="probe-fail">✗ 缺失</span></td><td>返回 SPA HTML 壳层（3.5 KB），非机器可读文件</td></tr>
+      <tr><td><code>/llms-full.txt</code></td><td><span class="probe-fail">✗ 缺失</span></td><td>未检测到，同上</td></tr>
+      <tr><td><code>/robots.txt</code></td><td><span class="probe-ok">✓ 放行</span></td><td>Disallow: /search, /*?*, /child-app/*, /v1/*（文档路径未屏蔽）</td></tr>
+      <tr><td><code>/sitemap.xml</code></td><td><span class="probe-warn">△ 空集</span></td><td>返回 200 但 <code>&lt;urlset&gt;</code> 为空；真实 sitemap 路径极长且仅含仓库渲染页</td></tr>
+      <tr><td><code>&lt;link rel="llms"&gt;</code></td><td><span class="probe-fail">✗ 缺失</span></td><td>文档页 <code>&lt;head&gt;</code> 无任何机器源声明</td></tr>
+      <tr><td><code>/raw/branch/master/…md</code> 双轨</td><td><span class="probe-fail">✗ 返回壳层</span></td><td>raw URL 返回 SPA HTML，非真实 Markdown；<code>/-/raw/master/</code> 同</td></tr>
+      <tr><td><code>/blob/master/…md</code> SSR</td><td><span class="probe-ok">✓ SSR 有效</span></td><td>blob 页 SSR 渲染正文（quick_start.md：50 &lt;p&gt;、18 H 标签已在 HTML 中）</td></tr>
+    </tbody>
+  </table>
+
+  <h2>子页面发现（旅程图）</h2>
+  <div class="journey">
+    <div class="journey-step">
+      <div class="journey-num">①</div>
+      <div class="journey-label">感知了解</div>
+      <div class="journey-page">仓库概述 · README.md</div>
+      <div class="journey-url"><a href="https://gitcode.com/cann/asc-devkit/blob/master/README.md" target="_blank">gitcode.com/…/README.md</a></div>
+    </div>
+    <div class="journey-step">
+      <div class="journey-num">②</div>
+      <div class="journey-label">学习知识</div>
+      <div class="journey-page">算子开发指南索引</div>
+      <div class="journey-url"><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/guide/index.md" target="_blank">gitcode.com/…/guide/index.md</a></div>
+    </div>
+    <div class="journey-step">
+      <div class="journey-num">③</div>
+      <div class="journey-label">环境准备</div>
+      <div class="journey-page">快速开始 · quick_start.md</div>
+      <div class="journey-url"><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/quick_start.md" target="_blank">gitcode.com/…/quick_start.md</a></div>
+    </div>
+    <div class="journey-step">
+      <div class="journey-num">④</div>
+      <div class="journey-label">核心开发</div>
+      <div class="journey-page">Ascend 950 新增特性导航</div>
+      <div class="journey-url"><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/asc_950_feature_guide.md" target="_blank">gitcode.com/…/asc_950_feature_guide.md</a></div>
+    </div>
+    <div class="journey-step">
+      <div class="journey-num">⑤</div>
+      <div class="journey-label">验证结果</div>
+      <div class="journey-page">quick_start.md § 环境验证</div>
+      <div class="journey-url"><a href="https://gitcode.com/cann/asc-devkit/blob/master/docs/quick_start.md#环境验证" target="_blank">gitcode.com/…#环境验证</a></div>
+    </div>
+  </div>
+
+  <h2>实测问题分布（四层）</h2>
+  <table>
+    <thead><tr><th>失效层</th><th>命中数（缺失+待改进）</th><th>Barnett FP</th><th>代表症状</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge badge-p0">P0 · 抓不到</span></td><td>2 条（1 缺失 · 1 待改进）</td><td>FP1 机器发现层</td><td>llms.txt 缺失；raw URL 返回壳层</td></tr>
+      <tr><td><span class="badge badge-p1">P1 · 找不准</span></td><td>6 条（3 缺失 · 3 待改进）</td><td>FP6 版本滞后</td><td>无 softwareVersion；无 dateModified；JSON-LD 字段仅 4 个</td></tr>
+      <tr><td><span class="badge badge-p2">P2 · 读不懂</span></td><td>5 条（0 缺失 · 5 待改进）</td><td>FP3/FP4 图/表语义</td><td>图片 alt 重复；表格无 caption；警示块无 data-admonition-type</td></tr>
+      <tr><td><span class="badge badge-p3">P3 · 读不顺</span></td><td>8 条（2 缺失 · 6 待改进）</td><td>FP5/FP7 HTML 适配</td><td>双轨 raw URL 失效；无 Playground；FAQ 无结构化</td></tr>
+    </tbody>
+  </table>
+
+  <h2>原则推导总结</h2>
+  <div class="stat-grid">
+    <div class="stat stat-missing"><div class="stat-num">6</div><div class="stat-label">缺失</div></div>
+    <div class="stat stat-improve"><div class="stat-num">15</div><div class="stat-label">待改进</div></div>
+    <div class="stat stat-pass"><div class="stat-num">13</div><div class="stat-label">达标</div></div>
+    <div class="stat stat-na"><div class="stat-num">1</div><div class="stat-label">不适用</div></div>
+  </div>
+
+  <div class="card">
+    <div class="summary-row">
+      <div class="summary-item">适用原则 <span class="summary-num">34</span> 条</div>
+      <div class="summary-item">最大短板 <span class="summary-num" style="color:var(--orange);">找不准</span>（3 条缺失）</div>
+      <div class="summary-item">最高风险 <span class="summary-num">#1 llms.txt</span>（未入库）+ <span class="summary-num">#24 双轨交付</span>（劣化入库）</div>
+    </div>
+    <p style="margin:0; font-size:13px;">
+      <strong>总体判断：</strong>asc-devkit 在 <strong>内容质量</strong>（步骤列表化、验证区块、锚点、代码语义）方面表现良好，
+      但在 <strong>机器可发现层</strong>（llms.txt 缺失、原始 Markdown URL 失效）和 <strong>元数据结构化</strong>（JSON-LD 残缺、无版本/日期字段）方面存在系统性短板，
+      导致 RAG 入库后版本漂移风险高、信源权威性难以机器识别。
+    </p>
+  </div>
+
+</div><!-- /tab-overview -->
+
+
+<!-- ═══════════════════════════════════════════
+     菜单 2 · 实测问题
+════════════════════════════════════════════ -->
+<div id="tab-issues" class="page">
+
+  <h1>实测问题详情</h1>
+  <p>按四层缺陷分组，每个命中问题展示：问句 → 模型回答 → 洞察 → 根因 → 关联原则</p>
+
+  <!-- P0 -->
+  <div class="layer-header">
+    <span class="badge badge-p0">P0 · 抓不到</span>
+    <div class="layer-line"></div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <span class="issue-title">机器发现层缺失</span>
+      <span class="badge badge-red">缺失</span>
+      <span class="badge badge-red">未入库</span>
+      <span class="badge badge-p0">P0</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">测试问句</div>
+      <div class="issue-body">「asc-devkit 文档站有 llms.txt 吗？爬虫如何发现机器源文件？」</div>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测结果</div>
+      <blockquote>
+        GET https://gitcode.com/llms.txt → HTTP 200，但响应体为 SPA HTML 壳层（3,576 bytes），含 &lt;script type="module"&gt; 等前端 JS，非 LLM 协议要求的机器可读文本。<br>
+        页面 &lt;head&gt; 无 &lt;link rel="llms"&gt; 或 &lt;link rel="alternate" type="text/markdown"&gt; 声明。<br>
+        /sitemap.xml 返回空 &lt;urlset&gt;。
+      </blockquote>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">问题洞察</div>
+      <div class="issue-body">搜索引擎和 RAG 爬虫无法通过标准协议（llms.txt / sitemap）发现 asc-devkit 文档的机器可读版本。即使 robots.txt 已放行文档路径，也缺少指引爬虫优先抓取哪些 URL 的导航文件，导致入库覆盖率偏低、版本漂移不可控。</div>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">根因分析</div>
+      <ol>
+        <li>GitCode 平台未为用户仓库提供自动生成 llms.txt 的机制</li>
+        <li>asc-devkit 项目本身未在仓库根目录维护 llms.txt 文件</li>
+        <li>sitemap 路由被 SPA 路由拦截，返回空文档</li>
+      </ol>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">Barnett FP</div>
+      <div class="issue-body">FP1 · 机器发现层失效：爬虫无法可靠地枚举文档 URL 集合</div>
+    </div>
+    <div class="issue-body"><strong>关联原则：</strong><a href="#" onclick="showTab('improve')">→ #1 llms.txt / sitemap 部署</a></div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <span class="issue-title">原始 Markdown URL 返回 SPA 壳层</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-orange">抓取差</span>
+      <span class="badge badge-p0">P0</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">测试问句</div>
+      <div class="issue-body">「这个文档有对应的 Markdown 源文件可以直接访问吗？」<br>GET https://gitcode.com/cann/asc-devkit/raw/branch/master/docs/quick_start.md</div>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测结果</div>
+      <blockquote>
+        /raw/branch/master/docs/quick_start.md → HTTP 200，但返回 SPA HTML（3,576 bytes），非 Markdown 文本。<br>
+        /blob/master/docs/quick_start.md → SSR 渲染正常（249 KB HTML，含 50 &lt;p&gt; 标签和代码块）。<br>
+        无 &lt;link rel="alternate" type="text/markdown"&gt; 头部声明。
+      </blockquote>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">问题洞察</div>
+      <div class="issue-body">RAG 管道若尝试通过 raw URL 获取纯 Markdown 源文件，将得到 HTML 壳层而非原始内容，导致解析失败或入库噪音。blob 页虽有 SSR 内容，但混入大量 Vue 组件 HTML，增加 chunk 切片难度。</div>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">根因分析</div>
+      <ol>
+        <li>GitCode SPA 路由拦截了 <code>/raw/branch/</code> 路径，未在服务端区分 raw 请求与页面请求</li>
+        <li>缺少 Content-Type: text/markdown 的专用 raw 端点或链接声明</li>
+      </ol>
+    </div>
+    <div class="issue-body"><strong>关联原则：</strong><a href="#" onclick="showTab('improve')">→ #24 双轨交付</a></div>
+  </div>
+
+  <!-- P1 -->
+  <div class="layer-header">
+    <span class="badge badge-p1">P1 · 找不准</span>
+    <div class="layer-line"></div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <span class="issue-title">版本信息完全缺失</span>
+      <span class="badge badge-red">缺失</span>
+      <span class="badge badge-red">语义未结构化</span>
+      <span class="badge badge-p1">P1</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">测试问句</div>
+      <div class="issue-body">「我在看 gitcode.com/cann/asc-devkit/blob/master/docs/quick_start.md，这是哪个版本的文档？」</div>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测结果（联网大模型回答）</div>
+      <blockquote>
+        搜索引擎同时返回 <code>blob/master/</code> 和 <code>blob/9.1.0/</code> 两个版本的 quick_start.md，模型无法区分哪个是主推稳定版。JSON-LD 无 <code>softwareVersion</code> 字段。页面 &lt;head&gt; 仅显示分支名 "master"，无 SemVer。
+      </blockquote>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">问题洞察</div>
+      <div class="issue-body">RAG 无法区分 master 开发版和 9.1.0 稳定版文档，极易将两版本内容混合入库，导致用户收到版本不一致的回答（如新旧 API 用法并存）。</div>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">根因分析</div>
+      <ol>
+        <li>JSON-LD <code>@type</code> 为 SoftwareSourceCode，仅含 4 个字段，无 <code>softwareVersion</code></li>
+        <li>页面固定位置（H1 下方）无版本 badge 展示</li>
+        <li>没有文档将 master 分支与 9.1.0 标签的关系显性化（如"master 对应下一版 ≥9.2"）</li>
+      </ol>
+    </div>
+    <div class="issue-body"><strong>关联原则：</strong><a href="#" onclick="showTab('improve')">→ #6 版本外显 · #8 元数据丰富化</a></div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <span class="issue-title">无更新日期 · 鲜度不可机器识别</span>
+      <span class="badge badge-red">缺失</span>
+      <span class="badge badge-red">语义未结构化</span>
+      <span class="badge badge-p1">P1</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">测试问句（DOM 审计）</div>
+      <div class="issue-body">检查所有采样页 <code>&lt;time datetime&gt;</code> 标签和 JSON-LD <code>dateModified</code> 字段。</div>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测结果</div>
+      <blockquote>
+        全部采样页面：<code>&lt;time&gt;</code> 标签数 = 0；JSON-LD 无 <code>dateModified</code> / <code>datePublished</code>；页面显示"22 minutes ago"等相对时间（仅视觉，非机器可读）。
+      </blockquote>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">问题洞察</div>
+      <div class="issue-body">RAG 系统无法判断文档鲜度，无法优先返回最近更新的内容；搜索引擎也无法使用 Last-Modified 来调控抓取频率，增加过时内容留存风险。</div>
+    </div>
+    <div class="issue-body"><strong>关联原则：</strong><a href="#" onclick="showTab('improve')">→ #7 明确更新日期</a></div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <span class="issue-title">JSON-LD 字段残缺 · 页面元数据贫乏</span>
+      <span class="badge badge-red">缺失</span>
+      <span class="badge badge-red">语义未结构化</span>
+      <span class="badge badge-p1">P1</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测结果（DOM 审计）</div>
+      <blockquote>
+        所有页面 JSON-LD 均为固定模板：<code>@type: SoftwareSourceCode</code> · 仅含 name / codeRepository / programmingLanguage / author 四字段。<br>
+        缺少：<code>@type=TechArticle</code>（或 HowTo）· <code>headline</code> · <code>description</code> · <code>datePublished</code> · <code>dateModified</code> · <code>softwareVersion</code> · <code>inLanguage</code> · <code>keywords</code>
+      </blockquote>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">问题洞察</div>
+      <div class="issue-body">搜索引擎和 RAG 管道无法通过结构化数据识别页面类型（教程/API 参考/概念文档），导致召回排序和 chunk 权重分配不准确。</div>
+    </div>
+    <div class="issue-body"><strong>关联原则：</strong><a href="#" onclick="showTab('improve')">→ #8 元数据丰富化</a></div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <span class="issue-title">废弃 API 无结构化状态标注</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+      <span class="badge badge-p1">P1</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">测试问句</div>
+      <div class="issue-body">「我在看 asc_950_feature_guide.md，asc_float2hif8 这个接口还可以用吗？」</div>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测结果</div>
+      <blockquote>
+        表格链接文字为"asc_float2hif8（废弃）"，存在专属文件 asc_float2hif8_deprecated.md；但 HTML 中 <code>data-status</code> = 0，无 JSON-LD <code>deprecated-since</code> 字段，无页顶提示框指向替代 API。
+      </blockquote>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">问题洞察</div>
+      <div class="issue-body">模型可从锚文本"（废弃）"识别废弃状态，但无法确定废弃起始版本，也无结构化信号阻止 RAG 检索时优先返回废弃 API 的文档。</div>
+    </div>
+    <div class="issue-body"><strong>关联原则：</strong><a href="#" onclick="showTab('improve')">→ #5 失效状态显化</a></div>
+  </div>
+
+  <!-- P2 -->
+  <div class="layer-header">
+    <span class="badge badge-p2">P2 · 读不懂</span>
+    <div class="layer-line"></div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <span class="issue-title">图片 alt 不描述内容 · 无 figcaption</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-orange">劣化入库</span>
+      <span class="badge badge-p2">P2</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">测试问句</div>
+      <div class="issue-body">「我在看 quick_start.md，能说明一下 WebIDE 和 VsCode IDE 接入云开发环境的界面有什么区别吗？」</div>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测结果</div>
+      <blockquote>
+        quick_start.md 包含 2 张截图（cloudIDE.png / webIDE.png），两张图片的 alt 均为"云平台"，无差异。chunk 提取时两张图片只留"云平台"文字，无法区分内容。模型无法描述界面细节。
+      </blockquote>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">根因分析</div>
+      <ol>
+        <li>Markdown 中 alt 文字写为通用"云平台"而非描述截图内容</li>
+        <li>无 <code>&lt;figcaption&gt;</code> 或图意转写段落</li>
+        <li>README.md 的架构图虽有文字列表说明（语言扩展层/基础API等），但截图类图无对应文字</li>
+      </ol>
+    </div>
+    <div class="issue-body"><strong>关联原则：</strong><a href="#" onclick="showTab('improve')">→ #14 图文图意 · #23 内容可访问性</a></div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <span class="issue-title">表格无 caption / scope · 机器列名关联失效</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+      <span class="badge badge-p2">P2</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">测试问句</div>
+      <div class="issue-body">「我在看 asc_950_feature_guide.md，RegBase 架构对应哪些 API 接口？」</div>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测结果</div>
+      <blockquote>
+        联网大模型能正确答出"Reg矢量计算API列表"（来自 SSR 渲染的表格文字）。但：全部采样表格 <code>&lt;caption&gt;</code> = 0，<code>&lt;th scope&gt;</code> = 0。chunk 切片时行数据缺乏表名锚点，"序号 1 RegBase 架构…"在孤岛 chunk 中语义不完整。
+      </blockquote>
+    </div>
+    <div class="issue-body"><strong>关联原则：</strong><a href="#" onclick="showTab('improve')">→ #20 表格语义</a></div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <span class="issue-title">警示块类型仅靠 CSS 类名 · 缺 data-admonition-type</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+      <span class="badge badge-p2">P2</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测结果（DOM 审计）</div>
+      <blockquote>
+        quick_start.md 有 9 个 GFM Alert 块（markdown-alert-tip × 1, note × 3, important × 1 等），标题文字已是真实文本节点（"选择建议""使用说明"等），但开放标签仅有 <code>class="markdown-alert markdown-alert-note"</code>，无 <code>data-admonition-type="note"</code>。chunk 解析器需理解 CSS class 语义才能识别警示类型。
+      </blockquote>
+    </div>
+    <div class="issue-body"><strong>关联原则：</strong><a href="#" onclick="showTab('improve')">→ #21 安全警示语义</a></div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <span class="issue-title">多语言文档无 hreflang · 中英版本孤岛</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+      <span class="badge badge-p1">P1</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测结果（DOM 审计）</div>
+      <blockquote>
+        仓库有 README.md（中文）和 README_en.md（英文），fork 也有 README_en.md；但所有页面 &lt;head&gt; hreflang 数组为空。搜索引擎将两个语言版本视为独立页面，无互相关联信号，可能导致重复内容惩罚。
+      </blockquote>
+    </div>
+    <div class="issue-body"><strong>关联原则：</strong><a href="#" onclick="showTab('improve')">→ #3 多语言与本地化锚点</a></div>
+  </div>
+
+  <!-- P3 -->
+  <div class="layer-header">
+    <span class="badge badge-p3">P3 · 读不顺</span>
+    <div class="layer-line"></div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <span class="issue-title">FAQ 无结构化数据 · 问答对散文化</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+      <span class="badge badge-p3">P3</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">测试问句</div>
+      <div class="issue-body">「算子运行验证时出现 AllocTensor/FreeTensor 失败该怎么处理？」</div>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测结果</div>
+      <blockquote>
+        guide/index.md 包含多个 FAQ 条目（"核函数运行验证时算子存在精度问题""运行验证时 AllocTensor/FreeTensor 失败"等）但均以列表链接形式组织，无 <code>FAQPage</code> JSON-LD，问答前缀无统一格式（Q: / A: 不存在）。模型搜索时能找到链接，但无法直接提取结构化问答对。
+      </blockquote>
+    </div>
+    <div class="issue-body"><strong>关联原则：</strong><a href="#" onclick="showTab('improve')">→ #28 FAQ 结构化</a></div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <span class="issue-title">无 Playground 入口 · API 示例无法在线运行</span>
+      <span class="badge badge-red">缺失</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+      <span class="badge badge-p3">P3</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">测试问句</div>
+      <div class="issue-body">「我在看 asc-devkit API 文档，能直接在线运行这个示例代码吗？」</div>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测结果</div>
+      <blockquote>
+        API 文档代码块无"在线尝试"按钮。禁用 JS 后无静态降级代码块。CANNLab 云开发环境以外部链接形式存在于 quick_start.md 中，但代码块与 CANNLab 无直接跳转集成。
+      </blockquote>
+    </div>
+    <div class="issue-body"><strong>关联原则：</strong><a href="#" onclick="showTab('improve')">→ #33 可交互示例与 Playground</a></div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <span class="issue-title">"以下" 高频前置引用 · chunk 孤岛风险</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-orange">劣化入库</span>
+      <span class="badge badge-p3">P3</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测结果（内容规则检测）</div>
+      <blockquote>
+        quick_start.md 单页"以下"出现 20 次；典型用例："以下为本开源仓源码编译…基础依赖条件"——"以下"后接列表，chunk 切片若在此处断开，"以下"指代对象丢失。"以下命令" "以下步骤"等模式在操作类文档中大量出现。
+      </blockquote>
+    </div>
+    <div class="issue-body"><strong>关联原则：</strong><a href="#" onclick="showTab('improve')">→ #32 消除模糊指代 · #26 结论前置</a></div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <span class="issue-title">内容结构无 data-pattern 标注 · 机器无法识别文档模式</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+      <span class="badge badge-p3">P3</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测结果（DOM 审计）</div>
+      <blockquote>
+        quick_start.md 已遵循"环境准备 → 验证 → 编译 → UT"的固定模式，但全文 <code>data-pattern</code> 出现 0 次。RAG 无法通过属性区分"前提条件"区块、"验证步骤"区块与"操作步骤"区块。
+      </blockquote>
+    </div>
+    <div class="issue-body"><strong>关联原则：</strong><a href="#" onclick="showTab('improve')">→ #29 内容结构模式</a></div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <span class="issue-title">无公开 Glossary · 术语一致性无机器可验证基准</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+      <span class="badge badge-p3">P3</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测结果（内容规则检测）</div>
+      <blockquote>
+        docs 目录无 Glossary 文件；"AscendC" 与"Ascend C"（含空格）在不同文档中混用；"接口"与"API"在同页有时交替使用。无结构化术语接口供 RAG 查询时进行同义词归并。
+      </blockquote>
+    </div>
+    <div class="issue-body"><strong>关联原则：</strong><a href="#" onclick="showTab('improve')">→ #31 术语一致性</a></div>
+  </div>
+
+  <div class="issue-card">
+    <div class="issue-header">
+      <span class="issue-title">边界场景描述缺少结构化标注</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+      <span class="badge badge-p3">P3</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">测试问句</div>
+      <div class="issue-body">「asc-devkit 支持在没有 NPU 设备的 Windows 机器上开发算子吗？」</div>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测结果</div>
+      <blockquote>
+        快速入门文档提到"DevContainer 基于 VS Code Dev Containers…Ascend 驱动仅支持 Linux"（隐含不支持 Windows），feature_guide 表格有"不涉及"/"资料开发中"文字标注。但全文无 <code>data-boundary="unsupported"</code> 属性，"不支持"场景散落于正文而非独立边界声明块，模型可能产生幻觉。
+      </blockquote>
+    </div>
+    <div class="issue-body"><strong>关联原则：</strong><a href="#" onclick="showTab('improve')">→ #35 明确边界</a></div>
+  </div>
+
+</div><!-- /tab-issues -->
+
+
+<!-- ═══════════════════════════════════════════
+     菜单 3 · 改造建议
+════════════════════════════════════════════ -->
+<div id="tab-improve" class="page">
+
+  <h1>改造建议</h1>
+
+  <div class="card" style="margin-bottom:28px;">
+    <div style="font-size:13px; line-height:2;">
+      <strong>非达标原则汇总：</strong><br>
+      <span class="badge badge-p0">P0 · 抓不到</span> 缺失 1 条 · 待改进 1 条 &nbsp;|&nbsp;
+      <span class="badge badge-p1">P1 · 找不准</span> 缺失 3 条 · 待改进 3 条 &nbsp;|&nbsp;
+      <span class="badge badge-p2">P2 · 读不懂</span> 缺失 0 条 · 待改进 5 条 &nbsp;|&nbsp;
+      <span class="badge badge-p3">P3 · 读不顺</span> 缺失 2 条 · 待改进 6 条
+    </div>
+  </div>
+
+  <!-- P0 -->
+  <div class="layer-header">
+    <span class="badge badge-p0">P0 · 抓不到（优先）</span>
+    <div class="layer-line"></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#1</span>
+      <span class="issue-title">llms.txt / sitemap 部署</span>
+      <span class="badge badge-p0">P0</span>
+      <span class="badge badge-red">缺失</span>
+      <span class="badge badge-red">未入库</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">GET /llms.txt → SPA HTML 壳（非机器可读）；/sitemap.xml 返回空集；页面 &lt;head&gt; 无 &lt;link rel="llms"&gt; 声明；robots.txt 放行文档路径（可利用）。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">在仓库根目录维护 <code>llms.txt</code> 文件，按版本分组列出各分支/tag 的主要文档 URL（master 分支 + 9.1.0 稳定版）</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">仓库页脚/侧边栏增加「机器可读版本」链接入口，指向 llms.txt</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">① GitCode 平台（或 CI）在每次发版时自动生成/更新 llms.txt<br>② 文档页 &lt;head&gt; 注入 <code>&lt;link rel="llms" href="/llms.txt"&gt;</code><br>③ 修复 sitemap 路由，让 blob URL 进入 sitemap</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c1"><label for="c1">待处理</label></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#24</span>
+      <span class="issue-title">双轨交付</span>
+      <span class="badge badge-p0">P0</span>
+      <span class="badge badge-red">缺失</span>
+      <span class="badge badge-orange">劣化入库</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">GET /raw/branch/master/docs/quick_start.md → 3,576 bytes SPA HTML，非 Markdown；blob 页 SSR 正常但含 Vue 组件 HTML 噪音；无 <code>&lt;link rel="alternate" type="text/markdown"&gt;</code>。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">—</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">—</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">① 修复 GitCode raw 路由，让 /raw/branch/ 返回真实 Markdown<br>② 文档页 &lt;head&gt; 注入 <code>&lt;link rel="alternate" type="text/markdown" href="…raw…"&gt;</code><br>③ RAG 管道临时方案：使用 GitCode API /api/v5/repos/{owner}/{repo}/contents/{path} 获取 base64 编码的原始文件</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c24"><label for="c24">待处理</label></div>
+  </div>
+
+  <!-- P1 -->
+  <div class="layer-header">
+    <span class="badge badge-p1">P1 · 找不准</span>
+    <div class="layer-line"></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#6</span>
+      <span class="issue-title">版本外显</span>
+      <span class="badge badge-p1">P1</span>
+      <span class="badge badge-red">缺失</span>
+      <span class="badge badge-red">语义未结构化</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">JSON-LD 无 <code>softwareVersion</code>；页面 H1 下方无版本 badge；master 与 9.1.0 tag 在搜索结果中并列，模型无法区分主推版本。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">各分支版本的版本差异用对比表格呈现；README 顶部明确标注"当前稳定版：9.1.0 | 开发版：master"</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">仓库页顶部固定展示版本 badge（稳定版/开发版）</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">① JSON-LD 注入 <code>"softwareVersion": "9.1.0"</code>（稳定版分支）/ "master"（开发版）<br>② 页面大纲接口暴露版本字段<br>③ CI 发版时自动更新 JSON-LD 版本号</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c6"><label for="c6">待处理</label></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#7</span>
+      <span class="issue-title">明确更新日期</span>
+      <span class="badge badge-p1">P1</span>
+      <span class="badge badge-red">缺失</span>
+      <span class="badge badge-red">语义未结构化</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">全部采样页无 &lt;time datetime&gt; 标签；JSON-LD 无 dateModified / datePublished；页面仅显示相对时间"3 hours ago"（视觉可见但机器不可读）。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">—</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">—</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">① 将页面已有的相对时间改为 <code>&lt;time datetime="2026-07-04T..."&gt;3 hours ago&lt;/time&gt;</code><br>② JSON-LD 注入 <code>dateModified</code>（取 git commit 时间）和 <code>datePublished</code>（取文件首次 commit 时间）<br>③ GitCode CI 在每次 merge 后触发页面元数据更新</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c7"><label for="c7">待处理</label></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#8</span>
+      <span class="issue-title">元数据丰富化</span>
+      <span class="badge badge-p1">P1</span>
+      <span class="badge badge-red">缺失</span>
+      <span class="badge badge-red">语义未结构化</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">JSON-LD 固定为 SoftwareSourceCode 仅含 4 字段；quick_start.md 应为 HowTo，feature_guide.md 应为 TechArticle，guide/index.md 应为 BreadcrumbList + TechArticle；缺失 headline/description/inLanguage/keywords 等所有内容语义字段。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">—</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">—</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">① 按页面类型模板化 JSON-LD：操作类→HowTo + HowToStep；API 参考→TechArticle；目录页→BreadcrumbList<br>② 必填字段：@type / headline（取 H1）/ description（取首段）/ datePublished / dateModified / softwareVersion / inLanguage / keywords<br>③ 发布流程 CI 校验 JSON-LD 必填字段完整性</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c8"><label for="c8">待处理</label></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#5</span>
+      <span class="issue-title">失效状态显化</span>
+      <span class="badge badge-p1">P1</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">asc_float2hif8（废弃）锚文本存在，专用 _deprecated.md 文件存在，但 data-status=0，无废弃起始版本，无指向替代 API 的结构化链接。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">废弃 API 文档页顶部加 ⚠️ GFM [!CAUTION] 提示框，注明废弃版本 + 替代 API 链接</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">废弃警告块使用独立颜色（红/橙边框）与普通 note 区分</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">① 在 &lt;div class="markdown-alert"&gt; 上补 <code>data-status="deprecated"</code> 和 <code>data-since="9.x"</code><br>② JSON-LD 为废弃 API 页加 <code>"lifecycleStatus": "deprecated"</code></div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c5"><label for="c5">待处理</label></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#3</span>
+      <span class="issue-title">多语言与本地化锚点</span>
+      <span class="badge badge-p1">P1</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">README.md（zh）和 README_en.md（en）并存，无 hreflang 互连；canonical 各自指向本页（正确）。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">建立中英文术语对照表（算子↔operator, 归一化↔normalization 等）</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">—</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">文档页 &lt;head&gt; 模板化输出 <code>&lt;link rel="alternate" hreflang="zh"&gt;</code> 和 <code>hreflang="en"&gt;</code> 互相指向；加 hreflang="x-default" 指向中文版</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c3"><label for="c3">待处理</label></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#10</span>
+      <span class="issue-title">内容可追溯性</span>
+      <span class="badge badge-p1">P1</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">git commit 历史可访问，但无正式 CHANGELOG 文件；无 CMS diff API；JSON-LD 无 author 来源字段（只有组织名）。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">在 docs 目录维护 CHANGELOG.md，按版本记录重大文档变更</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">—</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">GitCode API 暴露 /commits?path=docs/xxx.md 接口，RAG 管道可订阅变更；JSON-LD 补 <code>maintainer</code> 字段</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c10"><label for="c10">待处理</label></div>
+  </div>
+
+  <!-- P2 -->
+  <div class="layer-header">
+    <span class="badge badge-p2">P2 · 读不懂</span>
+    <div class="layer-line"></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#14</span>
+      <span class="issue-title">图文图意</span>
+      <span class="badge badge-p2">P2</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-orange">劣化入库</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">quick_start.md 两张截图 alt 均为"云平台"；无 figcaption；chunk 中只留"云平台"文字，两张图无法区分。README.md 架构图有文字列表补充（较好），但截图类图普遍缺失描述。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">① cloudIDE.png alt 改为"WebIDE 界面：显示在线 IDE 入口按钮和 NPU 环境状态"<br>② webIDE.png alt 改为"VSCode 远程连接云开发环境：显示 Dev Containers 连接面板"<br>③ 图下补 1-2 句图意转写</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">排版预留 figcaption 位置；架构图优先使用 Mermaid/SVG（可直接提取文字）</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">① &lt;img&gt; 改为 &lt;figure&gt;&lt;img alt="…"&gt;&lt;figcaption&gt;…&lt;/figcaption&gt;&lt;/figure&gt;<br>② chunk 切片策略：将 alt + figcaption + 图前后正文合为同一 chunk</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c14"><label for="c14">待处理</label></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#20</span>
+      <span class="issue-title">表格语义</span>
+      <span class="badge badge-p2">P2</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">全站表格 caption = 0，th scope = 0；feature_guide 主表 13 行×4 列无标题，chunk 切片后行数据缺乏表名上下文（"序号 1 RegBase 架构…"在孤岛状态语义不完整）。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">Markdown 表格前一行加说明句（"下表列出 Ascend 950PR/DT 相比上代新增的 13 项硬件特性…"）；符号替换为文字（已达标，保持）</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">表格标题文案交付规范纳入 asc_doc_design_rules.md</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">① Markdown 渲染器：识别表格前文字作为 &lt;caption&gt; 自动注入<br>② 为每个 &lt;th&gt; 补 scope="col"（或 scope="row" 对行表头）<br>③ chunk 提取时用"列名:单元格值"格式序列化表格行</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c20"><label for="c20">待处理</label></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#21</span>
+      <span class="issue-title">安全警示语义</span>
+      <span class="badge badge-p2">P2</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">9 个 GFM Alert 块，CSS 类名含类型（markdown-alert-note/tip/important），标题文字是真实文本节点（good），但无 <code>data-admonition-type</code>；自定义标题（"选择建议"）不对应标准类型名，chunk 解析器需额外逻辑。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">统一警示前缀：使用标准 GFM 类型词（Note / Tip / Important / Warning / Caution）+ 自定义标题组合，如 <code>&gt; [!IMPORTANT] 使用说明</code></div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">不同级别保持颜色+文字双重区分（已基本达到，维持）</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">在 &lt;div class="markdown-alert markdown-alert-note"&gt; 上自动注入 <code>data-admonition-type="note"</code>，便于 chunk 解析器按语义类型提取</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c21"><label for="c21">待处理</label></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#18</span>
+      <span class="issue-title">格式规范统一</span>
+      <span class="badge badge-p2">P2</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">代码块有语言标注（good）；H 标签不跳级（good）；表格有 &lt;th&gt;（good）；但 th scope = 0，caption = 0；警示块格式统一但缺 data 属性。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">在 asc_doc_design_rules.md 中补充"表格必须有前置说明句"和"th scope 规范"</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">—</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">Markdown 渲染 Lint：检测无 th scope 的表格、无 caption 注入逻辑、警示块缺 data-admonition-type</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c18"><label for="c18">待处理</label></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#23</span>
+      <span class="issue-title">内容可访问性</span>
+      <span class="badge badge-p2">P2</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">有 &lt;main&gt;/&lt;nav&gt;，无 &lt;article&gt;/&lt;aside&gt;；图片 alt 存在但内容不描述（"云平台"×2）；SVG 图标 aria-hidden="true"（正确）。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">—</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">对比度检测；页面滚动区域加 &lt;article&gt; 包裹正文内容</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">CMS 文档提交时强制校验 img alt 非空且非通用词（"图片""image""云平台"等需警告）；正文区域补 &lt;article&gt; 语义包裹</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c23"><label for="c23">待处理</label></div>
+  </div>
+
+  <!-- P3 -->
+  <div class="layer-header">
+    <span class="badge badge-p3">P3 · 读不顺</span>
+    <div class="layer-line"></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#28</span>
+      <span class="issue-title">FAQ 结构化</span>
+      <span class="badge badge-p3">P3</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">guide/index.md 有 FAQ 区块（8 个问题条目），但以链接列表组织，无 FAQPage JSON-LD，无 Q:/A: 统一前缀，模型无法直接提取问答对结构。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">FAQ 页面各条目改为明确 Q+A 段落格式；每个问题独立 H3 标题（以"Q："开头）</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">FAQ 问答对独立视觉容器</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">FAQ 页注入 FAQPage JSON-LD（Question + acceptedAnswer）；CMS 提供 FAQ 专属组件</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c28"><label for="c28">待处理</label></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#33</span>
+      <span class="issue-title">可交互示例与 Playground</span>
+      <span class="badge badge-p3">P3</span>
+      <span class="badge badge-red">缺失</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">API/SDK 文档代码块无"在线尝试"入口；CANNLab 以外部链接形式存在于 quick_start.md 但与代码块无集成；禁 JS 后无静态降级。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">—</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">代码块右上角增加「在 CANNLab 中打开」按钮，携带预填代码参数</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">代码块组件集成 CANNLab 跳转；SSR 提供静态代码降级（data-playground-url 属性）；禁 JS 时静态代码块完整可见</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c33"><label for="c33">待处理</label></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#32</span>
+      <span class="issue-title">消除模糊指代</span>
+      <span class="badge badge-p3">P3</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-orange">劣化入库</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">"以下" 在 quick_start.md 单页出现 20 次；"以下为本开源仓…基础依赖条件"等形式在 chunk 切断后指代对象丢失。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">将"以下"改为明确对象：如"下表列出基础依赖条件"→"以下基础依赖条件（Python ≥3.9、gcc ≥7.3）为本开源仓…"；步骤 li 补操作对象</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">—</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">CMS Lint：统计"以下"出现次数，超过阈值（如每页 10 次）触发警告</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c32"><label for="c32">待处理</label></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#29</span>
+      <span class="issue-title">内容结构模式</span>
+      <span class="badge badge-p3">P3</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">quick_start.md 已遵循"环境准备→验证→编译→UT"固定模式（内容质量好），但全文无 data-pattern 属性，RAG 无法识别区块类型（前提条件/操作步骤/验证区块）。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">—（内容结构已良好）</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">每种模式视觉样式差异化（环境准备区块 vs 验证区块）</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">Markdown 渲染时根据标题关键词自动注入 <code>data-pattern="prerequisite"</code>/"steps"/"verification"/"reference"；JSON-LD 补 HowToSection / HowToStep</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c29"><label for="c29">待处理</label></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#31</span>
+      <span class="issue-title">术语一致性</span>
+      <span class="badge badge-p3">P3</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">"AscendC"与"Ascend C"混用；"接口"与"API"交替出现；无公开 Glossary 文件；无机器可查术语接口。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">在 docs 目录新建 glossary.md，定义"Ascend C"（统一带空格）、"算子/operator"、"API/接口"等核心术语；首次出现提供定义链接</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">—</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">① 术语 Lint：检测"AscendC"（无空格）并警告<br>② Glossary 提供结构化接口（JSON）供 RAG 同义词归并</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c31"><label for="c31">待处理</label></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#35</span>
+      <span class="issue-title">明确边界</span>
+      <span class="badge badge-p3">P3</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-yellow">语义未结构化</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">feature_guide 表格有"不涉及"/"资料开发中"文字（好），但"不支持 Windows"等关键边界隐藏在正文描述中，无 data-boundary 属性，无对比表格，模型回答"是否支持 Windows 开发"时可能产生幻觉。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">quick_start.md 环境准备区块补充"支持/不支持"对比表（OS: Linux ✓ / macOS ✗ / Windows ✗；硬件: NPU required ✓ / CPU-only simulation ✓）</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">边界对比表格独立样式（支持行绿底，不支持行红底）</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body">边界表格行补 <code>data-boundary="supported"</code>/<code>"unsupported"</code>；JSON-LD 补 <code>contraindication</code> 字段描述不支持场景</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c35"><label for="c35">待处理</label></div>
+  </div>
+
+  <div class="improve-card">
+    <div class="issue-header">
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted)">#26</span>
+      <span class="issue-title">结论前置</span>
+      <span class="badge badge-p3">P3</span>
+      <span class="badge badge-yellow">待改进</span>
+      <span class="badge badge-orange">劣化入库</span>
+    </div>
+    <div class="issue-section">
+      <div class="issue-section-title">实测发现</div>
+      <div class="issue-body">"以下为本开源仓源码编译和 examples 算子样例编译运行的基础依赖条件"等句是铺垫式前缀，"以下"指代后面的列表；章节首句多为背景介绍而非核心结论。</div>
+    </div>
+    <div class="improve-grid">
+      <div>
+        <div class="improve-col-title">📝 文档内容</div>
+        <div class="improve-col-body">段首直接写结论：如将"以下为…基础依赖条件"改为"源码编译需要 Python ≥3.9 / gcc ≥7.3 / cmake ≥3.16"（铺垫后置）</div>
+      </div>
+      <div>
+        <div class="improve-col-title">🎨 设计 UI</div>
+        <div class="improve-col-body">—</div>
+      </div>
+      <div>
+        <div class="improve-col-title">⚙️ 前端 / 管道</div>
+        <div class="improve-col-body"><code>data-llm-summary</code> 属性标注段落核心结论句；JSON-LD abstract 字段</div>
+      </div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" id="c26"><label for="c26">待处理</label></div>
+  </div>
+
+  <!-- 汇总改造清单 -->
+  <h2>三列改造清单汇总（非达标项）</h2>
+  <div style="overflow-x:auto;">
+  <table>
+    <thead>
+      <tr><th>优先级</th><th>#</th><th>原则</th><th>文档内容</th><th>设计 UI</th><th>前端/管道</th><th>状态</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="badge badge-p0">P0</span></td><td>1</td><td>llms.txt 部署</td><td>维护仓库根 llms.txt</td><td>页脚机器入口链接</td><td>自动生成 + 头部声明</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p0">P0</span></td><td>24</td><td>双轨交付</td><td>—</td><td>—</td><td>修复 raw 路由 + link rel alternate</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p1">P1</span></td><td>6</td><td>版本外显</td><td>README 顶部版本说明</td><td>版本 badge</td><td>JSON-LD softwareVersion</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p1">P1</span></td><td>7</td><td>明确更新日期</td><td>—</td><td>—</td><td>&lt;time datetime&gt; + JSON-LD dateModified</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p1">P1</span></td><td>8</td><td>元数据丰富化</td><td>—</td><td>—</td><td>JSON-LD 模板化（HowTo/TechArticle）</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p1">P1</span></td><td>5</td><td>失效状态显化</td><td>废弃页顶 CAUTION 块</td><td>独立样式</td><td>data-status + JSON-LD lifecycleStatus</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p1">P1</span></td><td>3</td><td>多语言锚点</td><td>中英术语对照表</td><td>—</td><td>hreflang 模板化</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p1">P1</span></td><td>10</td><td>内容可追溯性</td><td>CHANGELOG.md</td><td>—</td><td>commits API + JSON-LD maintainer</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p2">P2</span></td><td>14</td><td>图文图意</td><td>描述性 alt + 图意转写</td><td>figcaption 排版</td><td>&lt;figure&gt;&lt;figcaption&gt; + chunk 策略</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p2">P2</span></td><td>20</td><td>表格语义</td><td>前置说明句</td><td>设计规范纳入</td><td>caption 注入 + th scope + chunk 序列化</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p2">P2</span></td><td>21</td><td>安全警示语义</td><td>统一前缀写法</td><td>颜色+文字双重区分</td><td>data-admonition-type 注入</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p2">P2</span></td><td>18</td><td>格式规范统一</td><td>规范补充</td><td>—</td><td>Lint 规则</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p2">P2</span></td><td>23</td><td>内容可访问性</td><td>—</td><td>&lt;article&gt; 包裹</td><td>CMS alt 强制校验</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p3">P3</span></td><td>28</td><td>FAQ 结构化</td><td>Q+A 格式规范</td><td>FAQ 独立容器</td><td>FAQPage JSON-LD</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p3">P3</span></td><td>33</td><td>Playground</td><td>—</td><td>代码块旁入口按钮</td><td>CANNLab 集成 + SSR 静态降级</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p3">P3</span></td><td>32</td><td>消除模糊指代</td><td>"以下"→明确对象</td><td>—</td><td>CMS Lint 告警</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p3">P3</span></td><td>29</td><td>内容结构模式</td><td>—</td><td>区块视觉差异化</td><td>data-pattern 自动注入</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p3">P3</span></td><td>31</td><td>术语一致性</td><td>glossary.md</td><td>—</td><td>术语 Lint + Glossary JSON API</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p3">P3</span></td><td>35</td><td>明确边界</td><td>支持/不支持对比表</td><td>边界表格独立样式</td><td>data-boundary + JSON-LD contraindication</td><td><input type="checkbox"></td></tr>
+      <tr><td><span class="badge badge-p3">P3</span></td><td>26</td><td>结论前置</td><td>段首写结论</td><td>—</td><td>data-llm-summary + JSON-LD abstract</td><td><input type="checkbox"></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="card" style="margin-top:24px;">
+    <div style="font-size:12px; color:var(--text-muted); line-height:1.8;">
+      <strong>理论依据：</strong>Barnett et al. 2024（FP1–FP7）· Liu et al. 2023（Lost in the Middle）· Aggarwal et al. 2024（GEO）· WCAG 2.1 · Schema.org<br>
+      <strong>诊断工具：</strong>curl 无 JS 抓取 · DOM/元数据静态审计 · 联网大模型问答实测（Claude Sonnet 4.6）· 内容规则检测（Python re）<br>
+      <strong>报告版本：</strong>v1.0 · 2026-07-07 · 精简版
+    </div>
+  </div>
+
+</div><!-- /tab-improve -->
+
+
+<!-- ═══════════════════════════════════════════
+     菜单 4 · 平台对比（5 段式重写）
+════════════════════════════════════════════ -->
+<div id="tab-compare" class="page">
+
+  <h1>昇腾社区 vs GitCode asc-devkit</h1>
+  <p style="color:var(--text-muted); margin-bottom:28px;">同一算子开发场景 · 平台对比 · 2026-07-07</p>
+
+  <!-- ① 一页结论 -->
+  <div class="cmp-section-label">① 一页结论 · 30 秒读懂</div>
+  <div class="cmp-verdict">
+    <p><strong>比的是什么？</strong>同样是 Ascend C 算子开发文档，昇腾社区是官网渲染站（hiascend.com），GitCode asc-devkit 是仓库 Markdown 文档。</p>
+    <p><strong>谁整体更好？</strong><span class="cmp-win">GitCode 更适合作为 RAG 内容源</span>——Markdown 源更干净，步骤/代码/验证区块更完整；但<span class="cmp-lose">两边在机器发现层和元数据上都严重缺失</span>，AI 仍可能答错版本。</p>
+    <p><strong>先改什么？</strong>两边都应先做 P0：<strong>#1 部署 llms.txt</strong> + <strong>#24 打通机器可读源</strong>（昇腾放行 source 路径，GitCode 修复 raw 路由）。</p>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>对比维度</th><th>昇腾社区</th><th>GitCode asc-devkit</th><th>一句话</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>机器能不能发现文档</td>
+        <td><span class="probe-fail">差</span> — llms.txt 404；source 被 robots 封</td>
+        <td><span class="probe-fail">差</span> — llms.txt 是 SPA 壳；raw 路由坏了</td>
+        <td><span class="cmp-tie">都差，机制不同</span></td>
+      </tr>
+      <tr>
+        <td>内容能不能被 AI 读懂</td>
+        <td><span class="probe-fail">差</span> — 图/Tab/热区大量丢失</td>
+        <td><span class="probe-ok">较好</span> — Markdown 源，步骤/代码干净</td>
+        <td><span class="cmp-win">GitCode 更好</span></td>
+      </tr>
+      <tr>
+        <td>版本/元数据是否可信</td>
+        <td><span class="probe-fail">差</span> — 8.x 与 9.0 混用</td>
+        <td><span class="probe-fail">差</span> — master 与 9.1.0 无 SemVer</td>
+        <td><span class="cmp-tie">都差</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ② 对比前提 -->
+  <h2>② 对比前提 · 读懂这页怎么比</h2>
+  <div class="card" style="margin-bottom:16px;">
+    <table>
+      <tr><td style="color:var(--text-muted);width:120px;">同一场景</td><td>Ascend C 算子开发（环境准备 → 核心开发 → 验证）</td></tr>
+      <tr><td style="color:var(--text-muted);">昇腾社区</td><td><a href="https://www.hiascend.com" target="_blank">hiascend.com</a> 官网渲染站 · 主推 CANN 9.0.0</td></tr>
+      <tr><td style="color:var(--text-muted);">GitCode</td><td><a href="https://gitcode.com/cann/asc-devkit/tree/master/docs" target="_blank">gitcode.com/cann/asc-devkit</a> 仓库 Markdown · 稳定版 9.1.0 + master</td></tr>
+      <tr><td style="color:var(--text-muted);">审计方式</td><td>昇腾：14 项实测症状 + 站点探测（<a href="https://liminshuo.github.io/llm-knowledge-research/" target="_blank">研究站</a>）｜ GitCode：35 条原则全量实测（本报告）</td></tr>
+    </table>
+  </div>
+  <div class="cmp-note">
+    <strong>⚠️ 数字不能直接相加。</strong>「昇腾 7/14 项读不懂」和「GitCode 15 条待改进」是不同口径，不能比大小。本页统一按<strong>四层缺陷</strong>（与前三个菜单一致）对齐对比。
+  </div>
+
+  <p style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">AI 读文档的路径：</p>
+  <div class="cmp-flow">
+    <div class="cmp-flow-step">
+      <div class="cmp-flow-q">用户提问</div>
+      <div class="cmp-flow-layer">能不能找到？</div>
+      <div style="font-size:11px;color:var(--p0);margin-top:4px;">P0 · 抓不到</div>
+    </div>
+    <div class="cmp-flow-step">
+      <div class="cmp-flow-q">找到了</div>
+      <div class="cmp-flow-layer">版本对不对？</div>
+      <div style="font-size:11px;color:var(--p1);margin-top:4px;">P1 · 找不准</div>
+    </div>
+    <div class="cmp-flow-step">
+      <div class="cmp-flow-q">版本对了</div>
+      <div class="cmp-flow-layer">图/表/代码能读懂吗？</div>
+      <div style="font-size:11px;color:var(--p2);margin-top:4px;">P2 · 读不懂</div>
+    </div>
+    <div class="cmp-flow-step">
+      <div class="cmp-flow-q">读懂了</div>
+      <div class="cmp-flow-layer">结构清晰吗？</div>
+      <div style="font-size:11px;color:var(--p3);margin-top:4px;">P3 · 读不顺</div>
+    </div>
+  </div>
+
+  <!-- ③ 四层缺陷对齐对比 -->
+  <h2>③ 四层缺陷对齐对比 · 核心主体</h2>
+  <table class="cmp-layer-row">
+    <thead>
+      <tr>
+        <th>失效层</th>
+        <th>用户会遇到什么</th>
+        <th>昇腾社区</th>
+        <th>GitCode asc-devkit</th>
+        <th>谁更好</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-p0">P0 抓不到</span></td>
+        <td>AI 根本找不到官方文档，或找不到机器源</td>
+        <td>llms.txt 404；<code>/doc_center/source/</code> 被 robots 封；sitemap 无 source 路径</td>
+        <td>llms.txt 返回 SPA 壳；<code>/raw/branch/</code> 返回 HTML 非 Markdown；sitemap 空集</td>
+        <td><span class="cmp-tie">平（都差）</span><br><span style="font-size:11px;color:var(--text-muted)">昇腾：有好源不让抓<br>GitCode：源在仓库但路由坏了</span></td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-p1">P1 找不准</span></td>
+        <td>AI 答错版本，新旧内容混用</td>
+        <td>8.x 与 9.0 文档并存；JSON-LD 无 softwareVersion；联网问答官方信源仅 22%–67%</td>
+        <td>master 与 9.1.0 tag 无 SemVer 区分；JSON-LD 仅 4 字段；无 dateModified</td>
+        <td><span class="cmp-tie">平（都差）</span><br><span style="font-size:11px;color:var(--text-muted)">GitCode 元数据更空白</span></td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-p2">P2 读不懂</span></td>
+        <td>AI 读不到图、Tab 内容、表格细节</td>
+        <td>架构图仅文件名入库；28 个热区无文本；Tab <code>display:none</code> 隐藏安装命令；代码行号混入</td>
+        <td>图片 alt 均为「云平台」；表格无 caption；警示块无 data-admonition-type（但 Markdown 源整体干净）</td>
+        <td><span class="cmp-win">GitCode 更好</span><br><span style="font-size:11px;color:var(--text-muted)">无 Tab 隐藏；代码块无行号污染</span></td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-p3">P3 读不顺</span></td>
+        <td>AI 答得含糊，chunk 切片错乱</td>
+        <td>~224KB 渲染 HTML 噪声大；链接锚文本「LINK」；无机器可读 Markdown 源</td>
+        <td>「以下」单页出现 20 次；FAQ 无结构化；无 Playground 入口</td>
+        <td><span class="cmp-win">GitCode 略好</span><br><span style="font-size:11px;color:var(--text-muted)">内容结构更规整</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ④ 同场景问句对比 -->
+  <h2>④ 同场景问句对比 · 用户旅程验证</h2>
+  <div class="cmp-legend-inline">
+    <span><span class="cmp-grade cmp-grade--ok" style="font-size:14px;">✓</span> 能答对</span>
+    <span><span class="cmp-grade cmp-grade--warn" style="font-size:14px;">△</span> 部分答对 / 待改进</span>
+    <span><span class="cmp-grade cmp-grade--fail" style="font-size:14px;">✗</span> 答不出 / 答错</span>
+  </div>
+  <table>
+    <thead>
+      <tr><th>旅程</th><th>代表问句</th><th style="text-align:center">昇腾</th><th style="text-align:center">GitCode</th><th>差异原因（一句话）</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>① 感知了解</td>
+        <td>架构图各层分别是什么？</td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--fail">✗</span></td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--warn">△</span></td>
+        <td>昇腾图意未入库；GitCode README 有文字列表但截图 alt 弱</td>
+      </tr>
+      <tr>
+        <td>② 学习知识</td>
+        <td>HelloWorld 样例代码在哪？</td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--warn">△</span></td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--ok">✓</span></td>
+        <td>GitCode guide/index 直链清晰；昇腾链接锚文本劣化</td>
+      </tr>
+      <tr>
+        <td>③ 环境准备</td>
+        <td>离线安装命令是什么？</td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--fail">✗</span></td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--ok">✓</span></td>
+        <td>昇腾 Tab 面板未入库；GitCode quick_start 步骤在正文</td>
+      </tr>
+      <tr>
+        <td>③ 环境准备</td>
+        <td>这是哪个版本的文档？</td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--fail">✗</span></td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--fail">✗</span></td>
+        <td>两边均无 SemVer 外显，版本混用风险高</td>
+      </tr>
+      <tr>
+        <td>④ 核心开发</td>
+        <td>核函数代码能直接复制编译吗？</td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--warn">△</span></td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--ok">✓</span></td>
+        <td>昇腾 highlighttable 行号污染；GitCode 原生 Markdown 代码块</td>
+      </tr>
+      <tr>
+        <td>⑤ 验证结果</td>
+        <td>运行成功的判断标准是什么？</td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--warn">△</span></td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--ok">✓</span></td>
+        <td>GitCode quick_start 有独立「环境验证」专节</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ⑤ 各自先改什么 -->
+  <h2>⑤ 各自先改什么 · 行动清单</h2>
+  <div class="cmp-action-grid">
+    <div class="cmp-action-card cmp-action-card--shared">
+      <h4><span class="badge badge-p0">P0</span> 两边都要先做</h4>
+      <ul>
+        <li><strong>#1 llms.txt</strong>：仓库根部署机器可读导航文件；页面 head 加 <code>&lt;link rel="llms"&gt;</code></li>
+        <li><strong>#24 双轨交付</strong>：打通原始文档通路
+          <ul style="margin-top:4px;">
+            <li>昇腾：robots 放行 <code>/doc_center/source/</code></li>
+            <li>GitCode：修复 <code>/raw/branch/</code> 返回真实 Markdown</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <div class="cmp-action-card cmp-action-card--ascend">
+      <h4><span class="badge badge-p2">P2</span> 昇腾独有优先项</h4>
+      <ul>
+        <li><strong>#22 隐藏语义</strong>：Tab 面板 SSR 全量输出，禁止 display:none 藏正文</li>
+        <li><strong>#14/#15 图意/热区</strong>：架构图补文字转写 + 热区文本链接清单</li>
+        <li><strong>检索阶段</strong>：提升官方信源在联网问答中的占比（目标 &gt;70%）</li>
+      </ul>
+    </div>
+    <div class="cmp-action-card cmp-action-card--gitcode">
+      <h4><span class="badge badge-p1">P1</span> GitCode 独有优先项</h4>
+      <ul>
+        <li><strong>#6/#7/#8 元数据三件套</strong>：JSON-LD 补 softwareVersion、dateModified、页面类型</li>
+        <li><strong>#3 多语言</strong>：README / README_en 补 hreflang 互连</li>
+        <li><strong>版本关系</strong>：README 顶部明示「稳定版 9.1.0 | 开发版 master」</li>
+      </ul>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>总体判断</th><th>结论</th></tr></thead>
+    <tbody>
+      <tr><td style="width:200px">谁更适合 RAG 入库（现状）</td><td><span class="cmp-win">GitCode 略胜</span> — Markdown 源、无 Tab 隐藏、代码/步骤更干净</td></tr>
+      <tr><td>谁更需要平台级改造</td><td><span class="cmp-lose">昇腾</span> — robots 封源 + 渲染壳层 + 图/热区/Tab 三重丢失</td></tr>
+      <tr><td>谁更需要元数据工程</td><td><span class="cmp-lose">GitCode</span> — JSON-LD 几乎空白，版本/日期完全不可机器读</td></tr>
+      <tr><td>改造方案可复用性</td><td>llms.txt 模板、JSON-LD 规范、图意转写写作规范可两边共用；平台路由（source vs raw）需分别处理</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 附录：技术细节（折叠） -->
+  <details class="cmp-appendix">
+    <summary>附录 · 技术细节对照表（站点探测 / 原则差异 / 严重度）</summary>
+    <div class="cmp-appendix-body">
+
+      <h3>站点探测对比</h3>
+      <table>
+        <thead><tr><th>检测项</th><th>昇腾社区</th><th>GitCode asc-devkit</th><th>结论</th></tr></thead>
+        <tbody>
+          <tr><td><code>/llms.txt</code></td><td><span class="probe-fail">✗ 404</span></td><td><span class="probe-fail">✗ SPA 壳层</span></td><td><span class="cmp-tie">都失败</span></td></tr>
+          <tr><td><code>/robots.txt</code></td><td><span class="probe-fail">⚠ Disallow source</span></td><td><span class="probe-ok">✓ 文档路径未屏蔽</span></td><td><span class="cmp-win">GitCode 更好</span></td></tr>
+          <tr><td><code>/sitemap.xml</code></td><td><span class="probe-warn">△ 1 万条渲染页，0 条 source</span></td><td><span class="probe-warn">△ urlset 为空</span></td><td><span class="cmp-tie">都不可用</span></td></tr>
+          <tr><td>机器源可访问</td><td><span class="probe-fail">✗ source 被 robots 封</span></td><td><span class="probe-fail">✗ raw URL 返回 SPA</span></td><td><span class="cmp-tie">都失败</span></td></tr>
+          <tr><td>首屏正文（禁 JS）</td><td><span class="probe-warn">△ 有正文但噪声大</span></td><td><span class="probe-ok">✓ blob SSR 有效</span></td><td><span class="cmp-win">GitCode 更好</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3>关键原则差异（Top 11）</h3>
+      <table>
+        <thead><tr><th>#</th><th>原则</th><th>昇腾</th><th>GitCode</th><th>谁更好</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>llms.txt</td><td><span class="badge badge-red">缺失</span></td><td><span class="badge badge-red">缺失</span></td><td><span class="cmp-tie">平</span></td></tr>
+          <tr><td>2</td><td>内容可检索</td><td><span class="badge badge-yellow">待改进</span></td><td><span class="badge badge-green">达标</span></td><td><span class="cmp-win">GitCode</span></td></tr>
+          <tr><td>6/7/8</td><td>版本/日期/元数据</td><td><span class="badge badge-red">缺失</span></td><td><span class="badge badge-red">缺失</span></td><td><span class="cmp-tie">平</span></td></tr>
+          <tr><td>12/13</td><td>步骤/验证区块</td><td><span class="badge badge-yellow">待改进</span></td><td><span class="badge badge-green">达标</span></td><td><span class="cmp-win">GitCode</span></td></tr>
+          <tr><td>14</td><td>图文图意</td><td><span class="badge badge-red">缺失</span></td><td><span class="badge badge-yellow">待改进</span></td><td><span class="cmp-win">GitCode</span></td></tr>
+          <tr><td>15</td><td>图片热区</td><td><span class="badge badge-red">缺失</span></td><td><span class="badge badge-gray">不适用</span></td><td>—</td></tr>
+          <tr><td>19</td><td>代码语义</td><td><span class="badge badge-yellow">待改进</span></td><td><span class="badge badge-green">达标</span></td><td><span class="cmp-win">GitCode</span></td></tr>
+          <tr><td>22</td><td>隐藏语义</td><td><span class="badge badge-red">缺失</span></td><td><span class="badge badge-green">达标</span></td><td><span class="cmp-win">GitCode</span></td></tr>
+          <tr><td>24</td><td>双轨交付</td><td><span class="badge badge-red">缺失</span></td><td><span class="badge badge-red">缺失</span></td><td><span class="cmp-tie">平</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3>严重度对比</h3>
+      <table>
+        <thead><tr><th>严重度</th><th>昇腾典型命中</th><th>GitCode 典型命中</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-red">未入库</span></td><td>图片图意、机器发现层</td><td>llms.txt</td></tr>
+          <tr><td><span class="badge badge-red">完全丢失</span></td><td>图片热区（28 个 area）</td><td>—</td></tr>
+          <tr><td><span class="badge badge-orange">抓取差</span></td><td>Tab 面板、折叠区</td><td>raw URL 返回壳层</td></tr>
+          <tr><td><span class="badge badge-yellow">劣化入库</span></td><td>渲染 HTML、链接 LINK、代码行号</td><td>图片 alt 重复、「以下」指代</td></tr>
+          <tr><td><span class="badge badge-yellow">语义未结构化</span></td><td>元数据、跨页关系</td><td>版本/日期/JSON-LD</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px; color:var(--text-muted); margin-top:8px;">昇腾严重度更偏「内容根本没进库」；GitCode 更偏「进了库但机器读不准」。</p>
+
+      <p style="font-size:12px; color:var(--text-muted); margin-top:16px;">
+        对照数据来源：<a href="https://liminshuo.github.io/llm-knowledge-research/" target="_blank">昇腾社区 AI 亲和研究站</a> · 对比报告 v2.0 · 2026-07-07
+      </p>
+    </div>
+  </details>
+
+</div><!-- /tab-compare -->
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const idx = {overview:0, issues:1, improve:2, compare:3}[name];
+  document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+}
+</script>
+</body>
+</html>
