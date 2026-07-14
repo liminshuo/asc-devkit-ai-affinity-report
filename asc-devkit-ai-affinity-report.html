@@ -181,6 +181,16 @@
   .cmp-evidence-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
   .cmp-evidence-tag--nv { background: rgba(118,185,0,.15); color: #558b00; }
   .cmp-evidence-tag--asc { background: rgba(249,115,22,.15); color: #c2410c; }
+  .nv-deep { margin: 16px 0 28px; }
+  .nv-deep-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .nv-deep-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .nv-deep-card h4 { margin: 0 0 8px; font-size: 13px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .nv-deep-card p { margin: 0 0 8px; font-size: 12.5px; color: var(--text-muted); line-height: 1.55; }
+  .nv-deep-card ul { margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--text); line-height: 1.55; }
+  .nv-deep-card li { margin-bottom: 4px; }
+  .nv-deep-card .nv-probe { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; background: rgba(0,0,0,.04); border-radius: 4px; padding: 8px 10px; margin-top: 8px; color: var(--text-muted); white-space: pre-wrap; word-break: break-word; }
+  .nv-deep-card--wide { grid-column: 1 / -1; }
+  @media (max-width: 900px) { .nv-deep-grid { grid-template-columns: 1fr; } }
   @media (max-width: 768px) {
     .cmp-evidence-grid { grid-template-columns: 1fr; }
   }
@@ -1668,7 +1678,7 @@
   <div class="cmp-section-label">① 一页结论 · 30 秒读懂</div>
   <div class="cmp-verdict">
     <p><strong>比的是什么？</strong>同属「GPU/NPU 编程指南」场景：NVIDIA 以 <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/index.html" target="_blank">CUDA Programming Guide</a> 为代表；昇腾以 <a href="https://www.hiascend.com" target="_blank">hiascend.com</a> Ascend C / CANN 官方渲染文档为代表。</p>
-    <p><strong>谁整体更强？</strong><span class="cmp-win">NVIDIA 在 14 项症状同题对照中明显领先</span>（约 11✓ / 3△ / 0✗）；昇腾短板集中在机器发现、图/热区/Tab、代码行号与 HTML 双轨。</p>
+    <p><strong>谁整体更强？</strong><span class="cmp-win">NVIDIA 在 14 项症状同题对照中仍明显领先</span>（深审后约 <strong>8✓ / 6△ / 0✗</strong>）；优势集中在机器发现与双轨 Markdown，短板集中在元数据空字段、多版本并存、表格符号与部分图 alt/Tab。</p>
     <p><strong>昇腾优先学什么？</strong>先对齐 NVIDIA 的机器发现层：部署产品线 <code>llms.txt</code>、放行 source、提供可直接抓取的 Markdown/纯文本轨。</p>
   </div>
 
@@ -1898,7 +1908,7 @@
   <!-- ④ 14 项症状同题对照 -->
   <h2>④ 14 项症状同题对照 · Skill symptoms-14</h2>
   <div class="cmp-note">
-    对同一典型问句：<strong>NVIDIA</strong> = 2026-07-14 新实测（docs.nvidia.com/cuda）；<strong>昇腾社区</strong> = 研究站 14 项症状结论映射（hiascend.com）。状态：✓ 不构成问题 / △ 部分存在 / ✗ 明确命中症状。
+    对同一典型问句：<strong>NVIDIA</strong> = 2026-07-14 深审（docs.nvidia.com/cuda，抽样 7 页：Guide Index / Programming Model / Writing Kernels / Language Extensions / Quick Start / Linux Install / Best Practices）；<strong>昇腾社区</strong> = 研究站 14 项症状结论映射（hiascend.com）。状态：✓ 不构成问题 / △ 部分存在 / ✗ 明确命中症状。深审后 NVIDIA 由「11✓/3△」修正为「8✓/6△」——不是变差，而是把原先笼统打钩的薄弱点写清。
   </div>
   <div class="cmp-legend-inline" style="margin-bottom:12px;">
     <span><span class="cmp-grade cmp-grade--ok" style="font-size:14px;">✓</span> 不构成问题</span>
@@ -1922,102 +1932,102 @@
         <td rowspan="3"><span class="badge badge-p0">抓不到</span></td>
         <td><strong>1. 机器发现层</strong></td>
         <td>站里有没有 llms.txt？爬虫能不能发现机器源？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span> <code>/llms.txt</code>、<code>/cuda/llms.txt</code> 均 200；robots 声明 AI crawler <code>Allow: /</code>，并 Allow <code>*.md</code> / <code>llms.txt</code><br><a href="#ev-s14-1" style="font-size:11px;">→ 截图</a></td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> 站级 + CUDA 产品级 <code>llms.txt</code> 200；robots 面向 AI crawler 并 <code>Allow: /*.md$</code> / <code>/llms.txt</code>。缺口：根 <code>/sitemap.xml</code> 404；页 head <strong>无</strong> <code>rel=llms</code> / alternate markdown<br><a href="#nv-deep" style="font-size:11px;">→ 深审</a> · <a href="#ev-s14-1" style="font-size:11px;">截图</a></td>
         <td><span class="cmp-grade cmp-grade--fail">✗</span> <code>llms.txt</code> 404；robots <code>Disallow: /doc_center/</code> 封机器源<br><a href="#ev-s14-1" style="font-size:11px;">→ 截图</a></td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
       <tr>
         <td><strong>2. 检索阶段</strong></td>
         <td>搜「CUDA / Ascend C 编程模型」时，官方文档占引用的比例如何？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span> 联网检索前两条即为 docs.nvidia.com Programming Model 官方页（另有 archive/百科），官方主导</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> 官方域 docs.nvidia.com 主导可检索；但 <code>/archive/</code> 与旧版路径仍索引可见，「主推 vs 归档」竞争存在（未稀释到昇腾那种社区二手主导）<br><a href="#nv-deep-2" style="font-size:11px;">→ 深审</a></td>
         <td><span class="cmp-grade cmp-grade--fail">✗</span> 研究站实测官方信源占比曾仅 22%–67%，易被社区二手内容稀释</td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
       <tr>
         <td><strong>3. 生成阶段</strong></td>
         <td>模型回答的 Host/Device/Kernel 是否与官方表述一致？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span> 可召回官方表述（host/device/kernel/thread block/grid），与 Guide 正文一致</td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> 主推 Guide 正文可对齐官方术语；风险在<strong>生成引用落到 archive/旧 URL</strong>时版本表述漂移（与症状 4 叠加）<br><a href="#nv-deep-3" style="font-size:11px;">→ 深审</a></td>
         <td><span class="cmp-grade cmp-grade--warn">△</span> 内容本身可答，但受发现层/版本混用影响，生成阶段易掺入过时页</td>
-        <td><span class="cmp-win">NVIDIA</span></td>
+        <td><span class="cmp-tie">略平偏 NV</span></td>
       </tr>
       <tr>
         <td rowspan="3"><span class="badge badge-p1">找不准</span></td>
         <td><strong>4. 版本滞后 &amp; 多版本并存</strong></td>
         <td>这是哪个版本的文档？会不会混新旧版？</td>
-        <td><span class="cmp-grade cmp-grade--warn">△</span> 页头可见 <strong>v13.3</strong>；同时存在 <code>/archive/13.2.1/</code>、<code>/archive/12.6.2/</code> 等路径——多版本并存但路径分仓清晰<br><a href="#ev-s14-4" style="font-size:11px;">→ 截图</a></td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> 页头 <strong>v13.3</strong>；<code>archive/13.2.1</code>、<code>12.6.2</code> 均 200。Guide 页 <code>docsearch:version</code> 为空串<br><a href="#nv-deep-4" style="font-size:11px;">→ 深审</a> · <a href="#ev-s14-4" style="font-size:11px;">截图</a></td>
         <td><span class="cmp-grade cmp-grade--fail">✗</span> 8.x 与 9.0 混用风险高；「最新版」口语多，机器难锚定主推版</td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
       <tr>
         <td><strong>5. 页级元数据未结构化</strong></td>
         <td>page head 里有版本号 / JSON-LD 吗？</td>
-        <td><span class="cmp-grade cmp-grade--warn">△</span> 人读标题有 v13.3；抽检 Programming Model / Language Extensions <strong>无 JSON-LD</strong>、<code>softwareVersion</code>、<code>&lt;time&gt;</code><br><a href="#ev-s14-5" style="font-size:11px;">→ 截图</a></td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> <strong>无</strong> JSON-LD / canonical / OG / <code>&lt;time&gt;</code>；有 <code>docbuild:last-update</code>。MD 轨 Published Time 可能与 meta 日期分叉<br><a href="#nv-deep-5" style="font-size:11px;">→ 深审</a> · <a href="#ev-s14-5" style="font-size:11px;">截图</a></td>
         <td><span class="cmp-grade cmp-grade--fail">✗</span> JSON-LD 残缺；版本/日期机器字段缺失（研究站已证）</td>
         <td><span class="cmp-tie">平偏 NV</span></td>
       </tr>
       <tr>
         <td><strong>6. 跨页关系未显性化</strong></td>
         <td>「下一篇」是什么？学习路径怎么安排？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span> Guide 首页明确 Part 1–5；页内 breadcrumb + prev/next；侧栏 TOC 稳定<br><a href="#ev-s14-6" style="font-size:11px;">→ 截图</a></td>
-        <td><span class="cmp-grade cmp-grade--fail">✗</span> 跨页关系弱；模块归属依赖导航猜测（研究站「跨页关系未显性化」）</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> Part 1–5 + breadcrumb + <code>rel=prev/next</code> + 侧栏 TOC<br><a href="#nv-deep-6" style="font-size:11px;">→ 深审</a> · <a href="#ev-s14-6" style="font-size:11px;">截图</a></td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> 跨页关系弱；模块归属依赖导航猜测</td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
       <tr>
         <td rowspan="7"><span class="badge badge-p2">读不懂</span></td>
         <td><strong>7. 图片语义缺失</strong></td>
         <td>架构图 / 线程块图是什么意思？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span> 信息图有描述性 alt（如 Grid of Thread Blocks）+ <strong>figcaption</strong>（页内 16 处）；.md 保留图意语境<br><a href="#ev-s14-7" style="font-size:11px;">→ 截图</a></td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> Programming Model：figcaption×16 + 描述性 alt（强）。Quick Start 出现文件名 alt；部分 Install 图缺 alt<br><a href="#nv-deep-7" style="font-size:11px;">→ 深审</a> · <a href="#ev-s14-7" style="font-size:11px;">截图</a></td>
         <td><span class="cmp-grade cmp-grade--fail">✗</span> 图意常未入库，chunk 仅见文件名</td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
       <tr>
         <td><strong>8. 热区信息缺失</strong></td>
         <td>图中各热区分别链接到哪里？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span>（本采样 Guide 页 <code>&lt;map&gt;/&lt;area&gt;=0</code>）无热区依赖 → <strong>不适用命中</strong>；未发现「热区丢失」症状</td>
-        <td><span class="cmp-grade cmp-grade--fail">✗</span> 热区无文本清单（研究站记 28 个 area 类问题）· 完全丢失</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> 7 页抽检 <code>&lt;map&gt;/&lt;area&gt;=0</code> → <strong>不适用命中</strong><br><a href="#nv-deep-8" style="font-size:11px;">→ 深审</a></td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> 热区无文本清单（研究站记 28 个 area）· 完全丢失</td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
       <tr>
         <td><strong>9. 表格语义缺失</strong></td>
         <td>某 API/内存说明表里各列分别表示什么？</td>
-        <td><span class="cmp-grade cmp-grade--warn">△</span> Language Extensions 有表 + 部分 caption；但 MD/HTML 表中可见 <strong>✅❌</strong>（17/24），缺 th scope——符号可劣化语义<br><a href="#ev-s14-9" style="font-size:11px;">→ 截图</a></td>
-        <td><span class="cmp-grade cmp-grade--warn">△</span> 表格语义劣化（研究站命中）；符号/结构不稳定</td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> 多数表有 caption；但 ✅❌ 共约 41 处且几乎无 <code>th scope</code><br><a href="#nv-deep-9" style="font-size:11px;">→ 深审</a> · <a href="#ev-s14-9" style="font-size:11px;">截图</a></td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> 表格语义劣化（研究站命中）</td>
         <td><span class="cmp-tie">略平</span></td>
       </tr>
       <tr>
         <td><strong>10. 代码块语义缺失</strong></td>
         <td>示例开头几行代码是什么？能直接复制吗？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span> HTML 使用 <code>highlight-cuda</code> + <code>&lt;pre&gt;</code>（158 处），<strong>无 highlighttable / linenos</strong>；.md 为纯净代码围栏<br><a href="#ev-s14-10" style="font-size:11px;">→ 截图</a></td>
-        <td><span class="cmp-grade cmp-grade--fail">✗</span> highlighttable 行号混入源码（研究站命中）</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> <code>highlight-cuda</code> + <code>&lt;pre&gt;</code>；无 linenos / highlighttable；.md 围栏干净<br><a href="#nv-deep-10" style="font-size:11px;">→ 深审</a> · <a href="#ev-s14-10" style="font-size:11px;">截图</a></td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> highlighttable 行号混入源码</td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
       <tr>
         <td><strong>11. 链接锚文本无效</strong></td>
         <td>「点击这里 / LINK」指向哪里？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span> Programming Model 页抽检无 here/click here/LINK 类无效锚文本</td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> 无 classic「click here / LINK」；但大量空锚文本 / 标题 permalink 图标（）及包图空链<br><a href="#nv-deep-11" style="font-size:11px;">→ 深审</a></td>
         <td><span class="cmp-grade cmp-grade--fail">✗</span> 链接锚文本「LINK / 点击这里」类劣化</td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
       <tr>
         <td><strong>12. 警示级别缺失</strong></td>
         <td>这里的 Note / 注意 是什么级别？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span> admonition 标题为真实文本节点（Hint / Note / Warning）<br><a href="#ev-s14-12" style="font-size:11px;">→ 截图</a></td>
-        <td><span class="cmp-grade cmp-grade--warn">△</span> 警示可见但结构化级别/机器属性常弱（研究站「警示级别缺失」）</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> 标题为真实文本 Hint/Note/Warning；缺 <code>data-admonition-type</code>（弱缺口）<br><a href="#nv-deep-12" style="font-size:11px;">→ 深审</a> · <a href="#ev-s14-12" style="font-size:11px;">截图</a></td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> 警示可见但结构化级别/机器属性常弱</td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
       <tr>
         <td><strong>13. 隐藏语义缺失</strong></td>
         <td>Tab 里「离线安装」那一栏命令是什么？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span> Guide 采样页无 tab-pane / display:none 藏正文模式；安装指南在独立文档经 llms.txt 暴露</td>
-        <td><span class="cmp-grade cmp-grade--fail">✗</span> Tab <code>display:none</code> 导致安装命令未入库（高优症状）</td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> Language Extensions 有 sphinx-design tab-set（CUDA C++ / Intrinsics）；禁 JS 时<strong>全部 tab 正文仍在 DOM</strong>（优于昇腾丢失），但易重复 chunk<br><a href="#nv-deep-13" style="font-size:11px;">→ 深审</a></td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> Tab <code>display:none</code> 导致安装命令未入库</td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
       <tr>
         <td><span class="badge badge-p3">读不顺</span></td>
         <td><strong>14. HTML 适配不足</strong></td>
         <td>有没有对应的 Markdown / 机器可读源？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span> <code>…html.md</code> 返回 <code>text/markdown</code>（Programming Model 实测 27KB 真 MD）；双轨闭环<br><a href="#ev-s14-14" style="font-size:11px;">→ 截图</a></td>
-        <td><span class="cmp-grade cmp-grade--fail">✗</span> 机器源被封 / .md 常为 SPA 壳；RAG 被迫吃 ~224KB 脏 HTML<br><a href="#ev-s14-asc" style="font-size:11px;">→ 截图</a></td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> <code>….html.md</code> → <code>text/markdown</code> 真双轨。缺口：HTML head 未声明 <code>rel=alternate</code> markdown<br><a href="#nv-deep-14" style="font-size:11px;">→ 深审</a> · <a href="#ev-s14-14" style="font-size:11px;">截图</a></td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> 机器源被封 / .md 常为 SPA 壳<br><a href="#ev-s14-asc" style="font-size:11px;">→ 截图</a></td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
     </tbody>
@@ -2025,12 +2035,161 @@
   </div>
 
   <div class="stat-grid" style="margin-top:8px;">
-    <div class="stat"><div class="stat-num" style="color:var(--green);">11</div><div class="stat-label">NVIDIA · ✓ 不构成问题</div></div>
-    <div class="stat"><div class="stat-num" style="color:var(--yellow);">3</div><div class="stat-label">NVIDIA · △ 部分存在</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--green);">8</div><div class="stat-label">NVIDIA · ✓ 不构成问题</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--yellow);">6</div><div class="stat-label">NVIDIA · △ 部分存在</div></div>
     <div class="stat"><div class="stat-num" style="color:var(--red);">0</div><div class="stat-label">NVIDIA · ✗ 明确命中</div></div>
     <div class="stat"><div class="stat-num" style="color:var(--orange);">~10+</div><div class="stat-label">昇腾 · ✗/△ 命中集中</div></div>
   </div>
-  <p style="font-size:12px;color:var(--text-muted);">NVIDIA 相对短板集中在 <strong>#5 元数据</strong>、<strong>#4 多版本路径</strong>（可控）、<strong>#9 表格 ✅❌</strong>；昇腾在 P0 发现层 + P2 图/热区/Tab/代码 形成组合短板。</p>
+  <p style="font-size:12px;color:var(--text-muted);">深审后 NVIDIA △ 集中在：<strong>#3 生成引用风险</strong>、<strong>#4/#5 版本与元数据</strong>、<strong>#7 图 alt 不一致</strong>、<strong>#9 表格符号</strong>、<strong>#11 空/图标锚</strong>、<strong>#13 Tab 并存噪声</strong>。仍无硬性 ✗。</p>
+
+  <!-- NVIDIA 14 症状深审 -->
+  <div class="nv-deep" id="nv-deep">
+    <div class="cmp-section-label">NVIDIA 深审补漏 · 14 症状逐条证据</div>
+    <div class="cmp-note" style="margin-bottom:12px;">
+      抽样：Programming Model / Writing SIMT Kernels / C++ Language Extensions / Guide Index / Quick Start / Linux Installation / Best Practices；另测 <code>/llms.txt</code>、<code>/cuda/llms.txt</code>、<code>/robots.txt</code>、<code>/archive/13.2.1|12.6.2/</code>、<code>….html.md</code>。方法：C 站点探测 + B/D 禁 JS DOM + MD 双轨抽检。
+    </div>
+    <div class="nv-deep-grid">
+
+      <div class="nv-deep-card" id="nv-deep-1">
+        <h4><span class="cmp-grade cmp-grade--ok">✓</span> 1. 机器发现层</h4>
+        <p>机器源可被发现；发现入口完整，页级声明仍有缺口。</p>
+        <ul>
+          <li><code>/llms.txt</code>（~7.7KB）+ <code>/cuda/llms.txt</code>（~12KB，按 Install/Programming/… 分组，大量链 <code>.html.md</code>）</li>
+          <li>robots：引导 LLM → Clean Markdown；列名 GPTBot/Claude/Google-Extended 等；Allow <code>/*.md$</code>、<code>/llms.txt</code></li>
+          <li>缺口：根 <code>/sitemap.xml</code> 404（真入口在 robots 多份 Sitemap）；页 head 无 <code>&lt;link rel="llms"&gt;</code></li>
+        </ul>
+      </div>
+
+      <div class="nv-deep-card" id="nv-deep-2">
+        <h4><span class="cmp-grade cmp-grade--ok">✓</span> 2. 检索阶段</h4>
+        <p>官方域权重高，但检索集合内存在「活档」竞争。</p>
+        <ul>
+          <li>主推编程模型页与 CUDA 产品树可被公开索引</li>
+          <li>同域仍可检索 <code>/archive/12.6.2/</code> 等历史树</li>
+          <li>相对昇腾：不是「找不到官方」，而是「同一官方域下谁算当前」</li>
+        </ul>
+      </div>
+
+      <div class="nv-deep-card" id="nv-deep-3">
+        <h4><span class="cmp-grade cmp-grade--warn">△</span> 3. 生成阶段</h4>
+        <p>答案可与主推 Guide 对齐；引用若落到 archive，易版本叙事不一致。</p>
+        <ul>
+          <li>Programming Model 对 host / device / kernel / SM / grid 定义清晰</li>
+          <li>失败模式：概念对但 cite 旧 toolkit 路径，或混入不同年代表述</li>
+          <li>与症状 4/5 叠加：机器字段弱 → 难做「只信任主推版」后处理</li>
+        </ul>
+      </div>
+
+      <div class="nv-deep-card" id="nv-deep-4">
+        <h4><span class="cmp-grade cmp-grade--warn">△</span> 4. 版本滞后 · 多版本并存</h4>
+        <p>人读版本清晰；机读版本槽位与归档并行是主要风险。</p>
+        <ul>
+          <li>UI：Guide / Install / QS / Best Practices 标题可见 13.3</li>
+          <li>并存：<code>/cuda/archive/13.2.1/</code>、<code>/12.6.2/</code> HTTP 200，路径分仓清楚</li>
+          <li>关键缺口：Guide 页 <code>docsearch:version</code> <strong>空值</strong></li>
+        </ul>
+        <div class="nv-probe">docsearch:version="" · docbuild:last-update="May 27, 2026" · UI v13.3
+archive/13.2.1 → 200 · archive/12.6.2 → 200</div>
+      </div>
+
+      <div class="nv-deep-card" id="nv-deep-5">
+        <h4><span class="cmp-grade cmp-grade--warn">△</span> 5. 页级元数据未结构化</h4>
+        <p>有少量内部 meta，缺 Schema.org / 标准时间与规范链接。</p>
+        <ul>
+          <li>抽检：<strong>无</strong> ld+json / softwareVersion / &lt;time&gt; / canonical / OG</li>
+          <li>正向：<code>docbuild:last-update</code>；Index/Install/QS 有 description/keywords</li>
+          <li>MD 轨 Published Time（例 Dec 2025）可能与 HTML last-update（May 2026）分叉</li>
+        </ul>
+      </div>
+
+      <div class="nv-deep-card" id="nv-deep-6">
+        <h4><span class="cmp-grade cmp-grade--ok">✓</span> 6. 跨页关系未显性化</h4>
+        <p>学习路径与翻页关系在 HTML 层显性，表现优秀。</p>
+        <ul>
+          <li>Guide Index：Part 1–5 标题即路径</li>
+          <li>页级：breadcrumb + <code>rel=prev|next</code> + 左 TOC / 右 on-this-page</li>
+        </ul>
+      </div>
+
+      <div class="nv-deep-card" id="nv-deep-7">
+        <h4><span class="cmp-grade cmp-grade--warn">△</span> 7. 图片语义缺失</h4>
+        <p>旗舰 Guide 页很强；同产品线其他文档仍有文件名当 alt。</p>
+        <ul>
+          <li>Programming Model / Writing Kernels：figcaption×16 + 描述性 alt</li>
+          <li>Quick Start：alt=<code>_images/navigate_nbody.png</code> 等文件名</li>
+          <li>Install：部分 &lt;img&gt; 缺 alt 属性</li>
+        </ul>
+      </div>
+
+      <div class="nv-deep-card" id="nv-deep-8">
+        <h4><span class="cmp-grade cmp-grade--ok">✓</span> 8. 热区信息缺失</h4>
+        <p>本采样不构成该症状（无 image map 依赖）。</p>
+        <ul>
+          <li>7 页合计 map=0 / area=0</li>
+          <li>架构关系靠 figcaption + 正文，而非热区跳转</li>
+        </ul>
+      </div>
+
+      <div class="nv-deep-card" id="nv-deep-9">
+        <h4><span class="cmp-grade cmp-grade--warn">△</span> 9. 表格语义缺失</h4>
+        <p>表结构大体可用；符号单元格是明确劣化点。</p>
+        <ul>
+          <li>Language Extensions：table 9，caption 5（Table 39 Execution Space Specifier 等）</li>
+          <li>同页 ✅×17 / ❌×24；th scope ≈ 0</li>
+        </ul>
+      </div>
+
+      <div class="nv-deep-card" id="nv-deep-10">
+        <h4><span class="cmp-grade cmp-grade--ok">✓</span> 10. 代码块语义缺失</h4>
+        <p>代码可复制性优秀，相对昇腾的硬优势之一。</p>
+        <ul>
+          <li>Language Extensions pre=158；Writing Kernels pre=38</li>
+          <li>未见 highlighttable / linenos 污染；.md 围栏可直接入库</li>
+        </ul>
+      </div>
+
+      <div class="nv-deep-card" id="nv-deep-11">
+        <h4><span class="cmp-grade cmp-grade--warn">△</span> 11. 链接锚文本无效</h4>
+        <p>未命中 classic「点击这里」，但存在空语义锚。</p>
+        <ul>
+          <li>classic bad anchors（here/click here/LINK）= 0</li>
+          <li>大量空文本锚、标题 permalink「# / 」、包住图片的空 &lt;a&gt;</li>
+        </ul>
+      </div>
+
+      <div class="nv-deep-card" id="nv-deep-12">
+        <h4><span class="cmp-grade cmp-grade--ok">✓</span> 12. 警示级别缺失</h4>
+        <p>级别靠真实文本标题表达，可被 chunk 读取。</p>
+        <ul>
+          <li>Language Extensions admonition≈40（Hint/Note/Warning）</li>
+          <li>Best Practices admonition≈58；缺 data-admonition-type（可接受弱缺口）</li>
+        </ul>
+      </div>
+
+      <div class="nv-deep-card" id="nv-deep-13">
+        <h4><span class="cmp-grade cmp-grade--warn">△</span> 13. 隐藏语义缺失</h4>
+        <p>存在 Tab，但不会把非激活栏从 HTML 抹掉——与昇腾失败模式不同。</p>
+        <ul>
+          <li>Language Extensions：tab-set=21 / tab-item=28；标签 CUDA C++ ↔ Intrinsics</li>
+          <li>禁 JS：各 sd-tab-content 正文均在 DOM</li>
+          <li>风险是重复 chunk / 未标 tab 名，不是命令失踪</li>
+        </ul>
+        <div class="nv-probe">sd-tab-label: CUDA C++ | Intrinsics × 多组
+tab-content 均含 pre/正文；非 display:none 剔除</div>
+      </div>
+
+      <div class="nv-deep-card nv-deep-card--wide" id="nv-deep-14">
+        <h4><span class="cmp-grade cmp-grade--ok">✓</span> 14. HTML 适配不足</h4>
+        <p>官方 Markdown 双轨已闭环；还可在 head 层把机器源说得更直白。</p>
+        <ul>
+          <li><code>programming-model.html.md</code> → text/markdown，约 27KB</li>
+          <li>Guide HTML SSR 完整（禁 JS 仍可得正文）</li>
+          <li>缺口：无 <code>&lt;link rel="alternate" type="text/markdown" href="….html.md"&gt;</code></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
 
   <div class="cmp-evidence" id="ev-s14">
     <div class="cmp-section-label">截图证明 · 14 项症状同题实证</div>
@@ -2136,9 +2295,9 @@
       <tr>
         <td>① 感知了解</td>
         <td>编程模型里 Host / Device / Kernel 分别是什么？架构图怎么读？</td>
-        <td style="text-align:center"><span class="cmp-grade cmp-grade--ok">✓</span></td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--warn">△</span></td>
         <td style="text-align:center"><span class="cmp-grade cmp-grade--fail">✗</span></td>
-        <td>对应症状 3/7：NV 正文+figcaption；昇腾图意常丢</td>
+        <td>对应症状 3/7：NV Guide 有 figcaption，但 QS 仍有文件名 alt；昇腾图意常丢</td>
       </tr>
       <tr>
         <td>② 学习路径</td>
@@ -2200,10 +2359,12 @@
     <div class="cmp-action-card cmp-action-card--nv">
       <h4><span class="badge badge-p1">P1</span> NVIDIA 可继续加强</h4>
       <ul>
-        <li>抽样页补 TechArticle / HowTo JSON-LD（症状 5）</li>
-        <li>页头固定 Toolkit 版本 badge + 机器字段（症状 4/5）</li>
-        <li>表格 ✅❌ 改为「支持/不支持」文字（症状 9）</li>
-        <li>统一装饰图 vs 信息图的 alt 策略</li>
+        <li>填满 <code>docsearch:version</code> + 页级 JSON-LD / <code>softwareVersion</code> / <code>&lt;time&gt;</code>（症状 4/5）</li>
+        <li>主推版与 archive 的检索/生成策略：canonical + 归档 noindex 或机器「isPrimary」标记（症状 2/3）</li>
+        <li>表格 ✅❌ 改为「支持/不支持」+ <code>th scope</code>（症状 9）</li>
+        <li>统一产品线 alt：消灭 <code>_images/…png</code> 文件名 alt；补 Install 缺省 alt（症状 7）</li>
+        <li>Tab 内容加来源标签 / 入库时标注 tab 名，降低重复 chunk（症状 13）</li>
+        <li>HTML head 增加 <code>rel=llms</code> 与 <code>alternate type=text/markdown</code>（症状 1/14）</li>
       </ul>
     </div>
   </div>
