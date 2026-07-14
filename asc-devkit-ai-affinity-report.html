@@ -2318,7 +2318,7 @@ tab-content 均含 pre/正文；非 display:none 剔除</div>
         <td>当前文档对应哪一版 Toolkit / CANN？</td>
         <td style="text-align:center"><span class="cmp-grade cmp-grade--warn">△</span></td>
         <td style="text-align:center"><span class="cmp-grade cmp-grade--fail">✗</span></td>
-        <td>对应症状 4/5：NV 有 v13.3 但缺 JSON-LD</td>
+        <td>对应症状 4/5：NV 有 v13.3，但 docsearch:version 空 + 无 JSON-LD</td>
       </tr>
       <tr>
         <td>④ 核心开发</td>
@@ -2387,11 +2387,15 @@ tab-content 均含 pre/正文；非 display:none 剔除</div>
         <tbody>
           <tr><td><code>https://docs.nvidia.com/llms.txt</code></td><td><span class="probe-ok">✓ 200</span></td><td>产品线入口索引（含 CUDA Toolkit → /cuda/llms.txt）</td></tr>
           <tr><td><code>https://docs.nvidia.com/cuda/llms.txt</code></td><td><span class="probe-ok">✓ 200</span></td><td>按 Install / Programming / Architecture / API 分组，大量链到 <code>.html.md</code></td></tr>
-          <tr><td><code>/robots.txt</code></td><td><span class="probe-ok">✓ AI 友好</span></td><td>注释写明引导 LLM 到 Clean Markdown；Allow:/；多 Sitemap</td></tr>
+          <tr><td><code>/robots.txt</code></td><td><span class="probe-ok">✓ AI 友好</span></td><td>引导 LLM→Clean Markdown；Allow <code>/*.md$</code> / <code>/llms.txt</code>；多 Sitemap</td></tr>
           <tr><td><code>/sitemap.xml</code></td><td><span class="probe-warn">△ 404</span></td><td>根路径空缺；真正 sitemap 写在 robots 里</td></tr>
-          <tr><td><code>…/index.html.md</code></td><td><span class="probe-ok">✓ text/markdown</span></td><td>Guide 首页与 Programming Model 页均返回真实 Markdown</td></tr>
-          <tr><td>Programming Model HTML（禁 JS curl）</td><td><span class="probe-ok">✓ ~62KB</span></td><td>66 段 &lt;p&gt;、16 标题、多图带 figcaption；有正文 SSR</td></tr>
-          <tr><td>JSON-LD / &lt;time&gt;</td><td><span class="probe-warn">△ 缺失</span></td><td>抽样页未检出结构化版本字段</td></tr>
+          <tr><td><code>…/programming-model.html.md</code></td><td><span class="probe-ok">✓ text/markdown</span></td><td>~27KB 真 Markdown；头含 Title / URL Source / Published Time</td></tr>
+          <tr><td>Programming Model HTML（禁 JS）</td><td><span class="probe-ok">✓ ~62KB</span></td><td>figcaption×16；breadcrumb + prev/next；SSR 正文完整</td></tr>
+          <tr><td>Language Extensions</td><td><span class="probe-warn">△ 混合</span></td><td>pre=158 干净；✅❌≈41；sphinx-design tab 内容均在 DOM</td></tr>
+          <tr><td><code>docsearch:version</code></td><td><span class="probe-warn">△ 空串</span></td><td>Guide 抽样页 version meta 未填；仅有 docbuild:last-update</td></tr>
+          <tr><td>JSON-LD / canonical / OG / &lt;time&gt;</td><td><span class="probe-warn">△ 缺失</span></td><td>7 页抽检均无 ld+json；机器版本锚点弱</td></tr>
+          <tr><td>Quick Start 图片 alt</td><td><span class="probe-warn">△ 文件名</span></td><td>出现 <code>_images/nbody_….png</code> 作 alt</td></tr>
+          <tr><td><code>/cuda/archive/13.2.1|12.6.2/</code></td><td><span class="probe-warn">△ 并存</span></td><td>HTTP 200；路径分仓清晰但仍可被检索/引用</td></tr>
         </tbody>
       </table>
       <p style="font-size:12px; color:var(--text-muted); margin-top:12px;">
