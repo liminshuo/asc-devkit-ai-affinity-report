@@ -1,0 +1,61 @@
+<!DOCTYPE html><html><head><meta charset=utf-8>
+    <style>
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;background:#0b1020;color:#e8eef8}
+    .bar{background:#eab308;color:#041008;padding:14px 18px;font-weight:700;font-size:15px}
+    .sub{opacity:.85;font-weight:500;font-size:12px;margin-top:4px}
+    .body{padding:18px;font-size:13px;line-height:1.5}
+    pre{white-space:pre-wrap;word-break:break-word;background:#12182a;border:1px solid #243049;padding:14px;border-radius:8px;font:12.5px/1.5 ui-monospace,Menlo,monospace}
+    .hl{background:#76b90033;padding:1px 4px;border-radius:3px}
+    .bad{background:#ff525233}
+    table{border-collapse:collapse;width:100%;margin-top:8px}
+    th,td{border:1px solid #334;padding:8px;text-align:left}
+    th{background:#1a2238}
+    figure{margin:12px 0;background:#12182a;border:1px solid #243049;border-radius:8px;padding:12px}
+    figcaption{margin-top:8px;color:#9fb0c8;font-size:12.5px}
+    .tag{display:inline-block;background:#76b900;color:#041008;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;margin-right:6px}
+    </style></head><body>
+    <div class="bar">症状 9 · NVIDIA 表格含 ✅❌（部分劣化）<div class="sub">URL: …/05-appendices/cpp-language-extensions.html · ✅=17 / ❌=24</div></div>
+    <div class="body"><p><span class="tag" style="background:#eab308">NVIDIA △</span>Execution Space Specifier 等表用符号代替「支持/不支持」文字；人读清晰，RAG/纯文本抽检可能丢语义。</p><pre>&lt;tr class="row-odd">&lt;th class="head" rowspan="2">&lt;p>Execution Space Specifier&lt;/p>&lt;/th>
+&lt;th class="head" colspan="3">&lt;p>Executed in&lt;/p>&lt;/th>
+&lt;th class="head" colspan="3">&lt;p>Callable from&lt;/p>&lt;/th>
+&lt;/tr>
+&lt;tr class="row-even">&lt;th class="head">&lt;p>Host&lt;/p>&lt;/th>
+&lt;th class="head">&lt;p>SIMT&lt;/p>&lt;/th>
+&lt;th class="head">&lt;p>Tile&lt;/p>&lt;/th>
+&lt;th class="head">&lt;p>Host&lt;/p>&lt;/th>
+&lt;th class="head">&lt;p>SIMT&lt;/p>&lt;/th>
+&lt;th class="head">&lt;p>Tile&lt;/p>&lt;/th>
+&lt;/tr>
+&lt;tr class="row-odd">&lt;td>&lt;p>&lt;code class="docutils literal notranslate">&lt;span class="pre">__host__&lt;/span>&lt;/code>, no specifier&lt;/p>&lt;/td>
+&lt;td>&lt;p>✅&lt;/p>&lt;/td>
+&lt;td>&lt;p>❌&lt;/p>&lt;/td>
+&lt;td>&lt;p>❌&lt;/p>&lt;/td>
+&lt;td>&lt;p>✅&lt;/p>&lt;/td>
+&lt;td>&lt;p>❌&lt;/p>&lt;/td>
+&lt;td>&lt;p>❌&lt;/p>&lt;/td>
+&lt;/tr>
+&lt;tr class="row-even">&lt;td>&lt;p>&lt;code class="docutils literal notranslate">&lt;span class="pre">__device__&lt;/span>&lt;/code>&lt;/p>&lt;/td>
+&lt;td>&lt;p>❌&lt;/p>&lt;/td>
+&lt;td>&lt;p>✅&lt;/p>&lt;/td>
+&lt;td>&lt;p>❌&lt;/p>&lt;/td>
+&lt;td>&lt;p>❌&lt;/p>&lt;/td>
+&lt;td>&lt;p>✅&lt;/p>&lt;/td>
+&lt;td>&lt;p>❌&lt;/p>&lt;/td>
+&lt;/tr>
+&lt;tr class="row-odd">&lt;td>&lt;p>&lt;code class="docutils literal notranslate">&lt;span class="pre">__global__&lt;/span>&lt;/code>&lt;/p>&lt;/td>
+&lt;td>&lt;p>❌&lt;/p>&lt;/td>
+&lt;td>&lt;p>✅&lt;/p>&lt;/td>
+&lt;td>&lt;p>❌&lt;/p>&lt;/td>
+&lt;td>&lt;p>✅&lt;/p>&lt;/td>
+&lt;td>&lt;p>✅&lt;/p>&lt;/td>
+&lt;td>&lt;p>❌&lt;/p>&lt;/td>
+&lt;/tr>
+&lt;tr class="row-even">&lt;td>&lt;p>&lt;code class="docutils literal notranslate">&lt;span class="pre">__tile__&lt;/span>&lt;/code>&lt;/p>&lt;/td>
+&lt;td>&lt;p>❌&lt;/p>&lt;/td>
+&lt;td>&lt;p>❌&lt;/p>&lt;/td>
+&lt;td>&lt;p>✅&lt;/p>&lt;/td>
+&lt;td>&lt;p>❌&lt;/p>&lt;/td>
+&lt;td>&lt;p>❌&lt;/p>&lt;/td>
+&lt;td>&lt;p>✅&lt;/p>&lt;/td>
+&lt;/tr></pre><p>结论：表结构存在（有 th/td），但符号单元格构成症状 9 的部分命中。</p></div>
+    </body></html>

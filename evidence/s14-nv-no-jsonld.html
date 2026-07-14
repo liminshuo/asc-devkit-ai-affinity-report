@@ -1,0 +1,24 @@
+<!DOCTYPE html><html><head><meta charset=utf-8>
+    <style>
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;background:#0b1020;color:#e8eef8}
+    .bar{background:#eab308;color:#041008;padding:14px 18px;font-weight:700;font-size:15px}
+    .sub{opacity:.85;font-weight:500;font-size:12px;margin-top:4px}
+    .body{padding:18px;font-size:13px;line-height:1.5}
+    pre{white-space:pre-wrap;word-break:break-word;background:#12182a;border:1px solid #243049;padding:14px;border-radius:8px;font:12.5px/1.5 ui-monospace,Menlo,monospace}
+    .hl{background:#76b90033;padding:1px 4px;border-radius:3px}
+    .bad{background:#ff525233}
+    table{border-collapse:collapse;width:100%;margin-top:8px}
+    th,td{border:1px solid #334;padding:8px;text-align:left}
+    th{background:#1a2238}
+    figure{margin:12px 0;background:#12182a;border:1px solid #243049;border-radius:8px;padding:12px}
+    figcaption{margin-top:8px;color:#9fb0c8;font-size:12.5px}
+    .tag{display:inline-block;background:#76b900;color:#041008;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;margin-right:6px}
+    </style></head><body>
+    <div class="bar">症状 5 · NVIDIA 页级 JSON-LD 缺失（△）<div class="sub">抽检 Programming Model HTML · application/ld+json = False</div></div>
+    <div class="body"><p><span class="tag" style="background:#eab308">NVIDIA △</span>人读标题有 <strong>v13.3</strong>，但页源未检出 TechArticle/HowTo JSON-LD、softwareVersion、&lt;time&gt;。</p><pre>grep -c "application/ld+json" programming-model.html  →  0
+grep -c "softwareVersion"       programming-model.html  →  0
+grep -c "&lt;time"                  programming-model.html  →  0
+
+title 片段可见版本：
+&lt;title>1.2. Programming Model &#8212; CUDA Programming Guide</pre></div>
+    </body></html>

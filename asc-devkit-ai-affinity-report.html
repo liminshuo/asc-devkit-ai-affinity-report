@@ -1922,8 +1922,8 @@
         <td rowspan="3"><span class="badge badge-p0">抓不到</span></td>
         <td><strong>1. 机器发现层</strong></td>
         <td>站里有没有 llms.txt？爬虫能不能发现机器源？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span> <code>/llms.txt</code>、<code>/cuda/llms.txt</code> 均 200；robots 声明 AI crawler <code>Allow: /</code>，并 Allow <code>*.md</code> / <code>llms.txt</code></td>
-        <td><span class="cmp-grade cmp-grade--fail">✗</span> <code>llms.txt</code> 404；robots <code>Disallow: /doc_center/</code> 封机器源</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> <code>/llms.txt</code>、<code>/cuda/llms.txt</code> 均 200；robots 声明 AI crawler <code>Allow: /</code>，并 Allow <code>*.md</code> / <code>llms.txt</code><br><a href="#ev-s14-1" style="font-size:11px;">→ 截图</a></td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> <code>llms.txt</code> 404；robots <code>Disallow: /doc_center/</code> 封机器源<br><a href="#ev-s14-1" style="font-size:11px;">→ 截图</a></td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
       <tr>
@@ -1944,21 +1944,21 @@
         <td rowspan="3"><span class="badge badge-p1">找不准</span></td>
         <td><strong>4. 版本滞后 &amp; 多版本并存</strong></td>
         <td>这是哪个版本的文档？会不会混新旧版？</td>
-        <td><span class="cmp-grade cmp-grade--warn">△</span> 页头可见 <strong>v13.3</strong>；同时存在 <code>/archive/13.2.1/</code>、<code>/archive/12.6.2/</code> 等路径——多版本并存但路径分仓清晰</td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> 页头可见 <strong>v13.3</strong>；同时存在 <code>/archive/13.2.1/</code>、<code>/archive/12.6.2/</code> 等路径——多版本并存但路径分仓清晰<br><a href="#ev-s14-4" style="font-size:11px;">→ 截图</a></td>
         <td><span class="cmp-grade cmp-grade--fail">✗</span> 8.x 与 9.0 混用风险高；「最新版」口语多，机器难锚定主推版</td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
       <tr>
         <td><strong>5. 页级元数据未结构化</strong></td>
         <td>page head 里有版本号 / JSON-LD 吗？</td>
-        <td><span class="cmp-grade cmp-grade--warn">△</span> 人读标题有 v13.3；抽检 Programming Model / Language Extensions <strong>无 JSON-LD</strong>、<code>softwareVersion</code>、<code>&lt;time&gt;</code></td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> 人读标题有 v13.3；抽检 Programming Model / Language Extensions <strong>无 JSON-LD</strong>、<code>softwareVersion</code>、<code>&lt;time&gt;</code><br><a href="#ev-s14-5" style="font-size:11px;">→ 截图</a></td>
         <td><span class="cmp-grade cmp-grade--fail">✗</span> JSON-LD 残缺；版本/日期机器字段缺失（研究站已证）</td>
         <td><span class="cmp-tie">平偏 NV</span></td>
       </tr>
       <tr>
         <td><strong>6. 跨页关系未显性化</strong></td>
         <td>「下一篇」是什么？学习路径怎么安排？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span> Guide 首页明确 Part 1–5；页内 breadcrumb + prev/next；侧栏 TOC 稳定</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> Guide 首页明确 Part 1–5；页内 breadcrumb + prev/next；侧栏 TOC 稳定<br><a href="#ev-s14-6" style="font-size:11px;">→ 截图</a></td>
         <td><span class="cmp-grade cmp-grade--fail">✗</span> 跨页关系弱；模块归属依赖导航猜测（研究站「跨页关系未显性化」）</td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
@@ -1966,7 +1966,7 @@
         <td rowspan="7"><span class="badge badge-p2">读不懂</span></td>
         <td><strong>7. 图片语义缺失</strong></td>
         <td>架构图 / 线程块图是什么意思？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span> 信息图有描述性 alt（如 Grid of Thread Blocks）+ <strong>figcaption</strong>（页内 16 处）；.md 保留图意语境</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> 信息图有描述性 alt（如 Grid of Thread Blocks）+ <strong>figcaption</strong>（页内 16 处）；.md 保留图意语境<br><a href="#ev-s14-7" style="font-size:11px;">→ 截图</a></td>
         <td><span class="cmp-grade cmp-grade--fail">✗</span> 图意常未入库，chunk 仅见文件名</td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
@@ -1980,14 +1980,14 @@
       <tr>
         <td><strong>9. 表格语义缺失</strong></td>
         <td>某 API/内存说明表里各列分别表示什么？</td>
-        <td><span class="cmp-grade cmp-grade--warn">△</span> Language Extensions 有表 + 部分 caption；但 MD/HTML 表中可见 <strong>✅❌</strong>（17/24），缺 th scope——符号可劣化语义</td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> Language Extensions 有表 + 部分 caption；但 MD/HTML 表中可见 <strong>✅❌</strong>（17/24），缺 th scope——符号可劣化语义<br><a href="#ev-s14-9" style="font-size:11px;">→ 截图</a></td>
         <td><span class="cmp-grade cmp-grade--warn">△</span> 表格语义劣化（研究站命中）；符号/结构不稳定</td>
         <td><span class="cmp-tie">略平</span></td>
       </tr>
       <tr>
         <td><strong>10. 代码块语义缺失</strong></td>
         <td>示例开头几行代码是什么？能直接复制吗？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span> HTML 使用 <code>highlight-cuda</code> + <code>&lt;pre&gt;</code>（158 处），<strong>无 highlighttable / linenos</strong>；.md 为纯净代码围栏</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> HTML 使用 <code>highlight-cuda</code> + <code>&lt;pre&gt;</code>（158 处），<strong>无 highlighttable / linenos</strong>；.md 为纯净代码围栏<br><a href="#ev-s14-10" style="font-size:11px;">→ 截图</a></td>
         <td><span class="cmp-grade cmp-grade--fail">✗</span> highlighttable 行号混入源码（研究站命中）</td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
@@ -2001,7 +2001,7 @@
       <tr>
         <td><strong>12. 警示级别缺失</strong></td>
         <td>这里的 Note / 注意 是什么级别？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span> admonition 标题为真实文本节点（Hint / Note / Warning）</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> admonition 标题为真实文本节点（Hint / Note / Warning）<br><a href="#ev-s14-12" style="font-size:11px;">→ 截图</a></td>
         <td><span class="cmp-grade cmp-grade--warn">△</span> 警示可见但结构化级别/机器属性常弱（研究站「警示级别缺失」）</td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
@@ -2016,8 +2016,8 @@
         <td><span class="badge badge-p3">读不顺</span></td>
         <td><strong>14. HTML 适配不足</strong></td>
         <td>有没有对应的 Markdown / 机器可读源？</td>
-        <td><span class="cmp-grade cmp-grade--ok">✓</span> <code>…html.md</code> 返回 <code>text/markdown</code>（Programming Model 实测 27KB 真 MD）；双轨闭环</td>
-        <td><span class="cmp-grade cmp-grade--fail">✗</span> 机器源被封 / .md 常为 SPA 壳；RAG 被迫吃 ~224KB 脏 HTML</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> <code>…html.md</code> 返回 <code>text/markdown</code>（Programming Model 实测 27KB 真 MD）；双轨闭环<br><a href="#ev-s14-14" style="font-size:11px;">→ 截图</a></td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> 机器源被封 / .md 常为 SPA 壳；RAG 被迫吃 ~224KB 脏 HTML<br><a href="#ev-s14-asc" style="font-size:11px;">→ 截图</a></td>
         <td><span class="cmp-win">NVIDIA</span></td>
       </tr>
     </tbody>
@@ -2031,6 +2031,95 @@
     <div class="stat"><div class="stat-num" style="color:var(--orange);">~10+</div><div class="stat-label">昇腾 · ✗/△ 命中集中</div></div>
   </div>
   <p style="font-size:12px;color:var(--text-muted);">NVIDIA 相对短板集中在 <strong>#5 元数据</strong>、<strong>#4 多版本路径</strong>（可控）、<strong>#9 表格 ✅❌</strong>；昇腾在 P0 发现层 + P2 图/热区/Tab/代码 形成组合短板。</p>
+
+  <div class="cmp-evidence" id="ev-s14">
+    <div class="cmp-section-label">截图证明 · 14 项症状同题实证</div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">2026-07-14 实测：NVIDIA = Chrome headless / 源码抽检；昇腾 = robots·llms 探测卡 + 研究站首页。表格行内「→ 截图」可跳到对应图。</p>
+
+    <div class="cmp-evidence-title" id="ev-s14-1">症状 1 · 机器发现层（llms.txt / robots）</div>
+    <div class="cmp-evidence-grid">
+      <figure class="cmp-evidence-card">
+        <img src="evidence/dim1-nv-llms.png" alt="NVIDIA CUDA llms.txt 200 截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA ✓</span><code>/cuda/llms.txt</code> 200，按 Install / Programming 分组并链到 <code>.html.md</code></figcaption>
+      </figure>
+      <figure class="cmp-evidence-card">
+        <img src="evidence/dim1-asc-llms.png" alt="昇腾 llms.txt 404 截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--asc">昇腾 ✗</span><code>hiascend.com/llms.txt</code> 返回 <strong>404</strong></figcaption>
+      </figure>
+      <figure class="cmp-evidence-card">
+        <img src="evidence/dim1-nv-robots.png" alt="NVIDIA robots.txt AI 友好截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA ✓</span>robots 面向 AI crawler，<code>Allow: /</code> + sitemap</figcaption>
+      </figure>
+      <figure class="cmp-evidence-card">
+        <img src="evidence/dim1-asc-robots.png" alt="昇腾 robots Disallow 截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--asc">昇腾 ✗</span><code>Disallow: /doc_center/</code> 封机器源路径</figcaption>
+      </figure>
+    </div>
+
+    <div class="cmp-evidence-title" id="ev-s14-4">症状 4 / 5 / 6 · 版本可见 · 元数据缺口 · Part 导学</div>
+    <div class="cmp-evidence-grid">
+      <figure class="cmp-evidence-card">
+        <img src="evidence/s14-nv-prog-model.png" alt="NVIDIA Programming Model v13.3 页头与正文截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA</span>页头 <strong>v13.3</strong> + breadcrumb + 侧栏 TOC；host/device/kernel 术语加粗可召回（症状 3/4/6）</figcaption>
+      </figure>
+      <figure class="cmp-evidence-card" id="ev-s14-6">
+        <img src="evidence/s14-nv-parts.png" alt="NVIDIA Guide Part 1-5 目录截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA ✓ · 症状 6</span>Guide 首页 Part 1–5 显性学习路径</figcaption>
+      </figure>
+      <figure class="cmp-evidence-card">
+        <img src="evidence/s14-nv-archive.png" alt="NVIDIA archive 多版本路径实证卡" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA △ · 症状 4</span><code>/archive/13.2.1/</code> 与 <code>/12.6.2/</code> 均 200，分仓清晰但仍多版本并存</figcaption>
+      </figure>
+      <figure class="cmp-evidence-card" id="ev-s14-5">
+        <img src="evidence/s14-nv-no-jsonld.png" alt="NVIDIA 无 JSON-LD 抽检实证卡" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA △ · 症状 5</span>抽检页 <code>application/ld+json</code> / <code>softwareVersion</code> / <code>&lt;time&gt;</code> = 0</figcaption>
+      </figure>
+    </div>
+
+    <div class="cmp-evidence-title" id="ev-s14-7">症状 7 / 9 / 10 / 12 · 图意 · 表格符号 · 干净代码 · 警示文本</div>
+    <div class="cmp-evidence-grid">
+      <figure class="cmp-evidence-card">
+        <img src="evidence/s14-nv-figcaption.png" alt="NVIDIA figcaption 与描述性 alt 实证卡" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA ✓ · 症状 7</span>Programming Model 页 <strong>16</strong> 处 figcaption + 描述性 alt（Grid / SM 等）</figcaption>
+      </figure>
+      <figure class="cmp-evidence-card" id="ev-s14-9">
+        <img src="evidence/s14-nv-lang-ext.png" alt="NVIDIA Language Extensions 含勾叉符号表截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA △ · 症状 9</span>Execution Space Specifier 表可见 ✅❌ 单元格（同页源码计数 17/24）</figcaption>
+      </figure>
+      <figure class="cmp-evidence-card">
+        <img src="evidence/s14-nv-emoji-table.png" alt="NVIDIA 表格 ✅❌ HTML 源码实证卡" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA △ · 症状 9</span>HTML 源：<code>&lt;td&gt;&lt;p&gt;✅&lt;/p&gt;&lt;/td&gt;</code> —— 符号可劣化纯文本语义</figcaption>
+      </figure>
+      <figure class="cmp-evidence-card" id="ev-s14-10">
+        <img src="evidence/s14-nv-code-clean.png" alt="NVIDIA 代码块无行号实证卡" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA ✓ · 症状 10</span><code>pre=158</code> 且无 <code>linenos</code> / <code>highlighttable</code></figcaption>
+      </figure>
+      <figure class="cmp-evidence-card" id="ev-s14-12">
+        <img src="evidence/s14-nv-admonition.png" alt="NVIDIA admonition Hint Note Warning 实证卡" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA ✓ · 症状 12</span>admonition 标题为真实文本：Hint / Note / Warning</figcaption>
+      </figure>
+    </div>
+
+    <div class="cmp-evidence-title" id="ev-s14-14">症状 14 · HTML / Markdown 双轨</div>
+    <div class="cmp-evidence-grid">
+      <figure class="cmp-evidence-card cmp-evidence-card--wide">
+        <img src="evidence/s14-nv-html-md.png" alt="NVIDIA programming-model.html.md 真实 Markdown 截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA ✓</span><code>…/programming-model.html.md</code> 返回 <code>text/markdown</code>（约 27KB 真 MD），host/device/kernel 定义可直接入库</figcaption>
+      </figure>
+    </div>
+
+    <div class="cmp-evidence-title" id="ev-s14-asc">昇腾侧 · 症状簇对照入口</div>
+    <div class="cmp-evidence-grid">
+      <figure class="cmp-evidence-card">
+        <img src="evidence/s14-asc-research.png" alt="昇腾社区 AI 亲和研究站首页截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--asc">昇腾</span>研究站首页：详见「实测问题」菜单（图意/热区/Tab/行号等）· <a href="https://liminshuo.github.io/llm-knowledge-research/" target="_blank">打开研究站</a></figcaption>
+      </figure>
+      <figure class="cmp-evidence-card">
+        <img src="evidence/s14-asc-symptoms.png" alt="昇腾 14 症状命中簇摘要卡" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--asc">昇腾 ✗/△</span>同题映射摘要：发现层封源 + 图/热区/Tab/代码/双轨高发</figcaption>
+      </figure>
+    </div>
+  </div>
 
   <!-- ⑤ 同场景问句 -->
   <h2>⑤ 同场景问句 · 旅程验证（补充）</h2>

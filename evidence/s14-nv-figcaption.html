@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset=utf-8>
+    <style>
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;background:#0b1020;color:#e8eef8}
+    .bar{background:#76b900;color:#041008;padding:14px 18px;font-weight:700;font-size:15px}
+    .sub{opacity:.85;font-weight:500;font-size:12px;margin-top:4px}
+    .body{padding:18px;font-size:13px;line-height:1.5}
+    pre{white-space:pre-wrap;word-break:break-word;background:#12182a;border:1px solid #243049;padding:14px;border-radius:8px;font:12.5px/1.5 ui-monospace,Menlo,monospace}
+    .hl{background:#76b90033;padding:1px 4px;border-radius:3px}
+    .bad{background:#ff525233}
+    table{border-collapse:collapse;width:100%;margin-top:8px}
+    th,td{border:1px solid #334;padding:8px;text-align:left}
+    th{background:#1a2238}
+    figure{margin:12px 0;background:#12182a;border:1px solid #243049;border-radius:8px;padding:12px}
+    figcaption{margin-top:8px;color:#9fb0c8;font-size:12.5px}
+    .tag{display:inline-block;background:#76b900;color:#041008;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;margin-right:6px}
+    </style></head><body>
+    <div class="bar">症状 7 · NVIDIA figcaption / 描述性 alt 实证<div class="sub">URL: …/01-introduction/programming-model.html · figcaption 计数 = 16</div></div>
+    <div class="body"><p><span class="tag">NVIDIA ✓</span>页内实测 <strong>16</strong> 处 <code>&lt;figcaption&gt;</code>；信息图 alt 描述 Grid / SM 等，可进 RAG chunk。</p><h3>figcaption 摘录</h3><ul><li>Figure 2 A GPU has many streaming multiprocessors (SMs), each of which contains many functional units. Graphics processing clusters (GPCs) are collections of SMs. A GPU is a set of GPCs connected to the GPU memory. A CPU typically has several cores and a memory controller which connects to the system memory. A CPU and a GPU are connected by an interconnect such as PCIe or NVLINK.#</li><li>Figure 3 Grid of Thread Blocks. Each arrow represents a thread (the number of arrows is not representative of actual number of threads).#</li><li>Figure 4 Each SM has one or more active thread blocks. In this example, each SM has three thread blocks scheduled simultaneously. There are no guarantees about the order in which thread blocks from a grid are assigned to SMs.#</li><li>Figure 5 When clusters are specified, thread blocks are in the same location in the grid but also have a position within the containing cluster.#</li><li>Figure 6 When clusters are specified, the thread blocks in a cluster are arranged in their cluster shape within the grid. The thread blocks of a cluster are scheduled simultaneously on the SMs of a single GPC.#</li><li>Figure 7 In this example, only threads with even thread index execute the body of the if statement, the others are masked off while the body is executed.#</li></ul><h3>信息图 alt（非 logo）</h3><ul><li><code>The CUDA programming model view of CPU and GPU components and connection</code></li><li><code>Grid of Thread Blocks</code></li><li><code>Thread blocks scheduled on SMs</code></li><li><code>Thread blocks scheduled on SMs</code></li><li><code>Thread blocks scheduled in clusters on GPCs</code></li><li><code>Warp lanes are masked off when not active</code></li><li><code>Programmer's view in the SIMT and tile programming models</code></li><li><code>Tile space and data movement</code></li></ul><h3>源码片段</h3><pre>&lt;figure class="align-center" id="gpu-cpu-system-diagram">
+&lt;a class="reference internal image-reference" href="../_images/gpu-cpu-system-diagram.png">&lt;img alt="The CUDA programming model view of CPU and GPU components and connection" src="../_images/gpu-cpu-system-diagram.png" style="width: 454px;" />
+&lt;/a>
+&lt;figcaption>
+&lt;p>&lt;span class="caption-number">Figure 2 &lt;/span>&lt;span class="caption-text">A GPU has many streaming multiprocessors (SMs), each of which contains many functional units. Graphics processing clusters (GPCs) are collections of SMs. A GPU is a set of GPCs connected to the GPU memory. A CPU typically has several cores and a memory controller which connects to the system memory. A CPU and a GPU are connected by an interconnect such as PCIe or NVLINK.&lt;/span>&lt;a class="headerlink" href="#gpu-cpu-system-diagram" title="Link to this image">#&lt;/a>&lt;/p>
+&lt;/figcaption>
+&lt;/figure></pre></div>
+    </body></html>
