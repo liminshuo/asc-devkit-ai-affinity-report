@@ -171,6 +171,19 @@
   }
   .cmp-legend-nv::before { background: #76b900; }
   .cmp-legend-ascend-site::before { background: #f97316; }
+  .cmp-evidence { margin: 8px 0 28px; }
+  .cmp-evidence-title { font-size: 13px; font-weight: 700; color: var(--text); margin: 18px 0 10px; }
+  .cmp-evidence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
+  .cmp-evidence-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .cmp-evidence-card figcaption { padding: 10px 12px; font-size: 12px; color: var(--text-muted); line-height: 1.5; border-top: 1px solid var(--border); }
+  .cmp-evidence-card img { display: block; width: 100%; height: auto; background: #0b1020; }
+  .cmp-evidence-card--wide { grid-column: 1 / -1; }
+  .cmp-evidence-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
+  .cmp-evidence-tag--nv { background: rgba(118,185,0,.15); color: #558b00; }
+  .cmp-evidence-tag--asc { background: rgba(249,115,22,.15); color: #c2410c; }
+  @media (max-width: 768px) {
+    .cmp-evidence-grid { grid-template-columns: 1fr; }
+  }
   .cmp-layer-row td:first-child { font-weight: 600; white-space: nowrap; }
   details.cmp-appendix { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-top: 32px; }
   details.cmp-appendix summary { padding: 14px 18px; cursor: pointer; font-weight: 600; font-size: 13px; color: var(--text-muted); list-style: none; }
@@ -1666,30 +1679,87 @@
     <tbody>
       <tr>
         <td>机器能不能发现文档</td>
-        <td><span class="probe-ok">强</span> — 站级 + CUDA 产品级 <code>llms.txt</code>；robots 明确面向 AI 爬虫 Allow</td>
-        <td><span class="probe-fail">弱</span> — <code>llms.txt</code> 404；robots Disallow source</td>
+        <td><span class="probe-ok">强</span> — 站级 + CUDA 产品级 <code>llms.txt</code>；robots 明确面向 AI 爬虫 Allow<br><a href="#ev-dim1" style="font-size:11px;">→ 见截图证明</a></td>
+        <td><span class="probe-fail">弱</span> — <code>llms.txt</code> 404；robots Disallow <code>/doc_center/</code><br><a href="#ev-dim1" style="font-size:11px;">→ 见截图证明</a></td>
         <td><span class="cmp-win">NVIDIA 更好</span></td>
       </tr>
       <tr>
         <td>版本 / 元数据是否可信</td>
-        <td><span class="probe-warn">中</span> — 正文可检索，但抽样页缺 JSON-LD / softwareVersion</td>
+        <td><span class="probe-warn">中</span> — 页头可见 v13.3（人读），但抽样页缺 JSON-LD / softwareVersion<br><a href="#ev-dim2" style="font-size:11px;">→ 见截图证明</a></td>
         <td><span class="probe-fail">弱</span> — 8.x 与 9.0 混用；联网官方信源占比不稳</td>
         <td><span class="cmp-win">NVIDIA 略好</span></td>
       </tr>
       <tr>
         <td>内容能不能被 AI 读懂</td>
-        <td><span class="probe-ok">较强</span> — SSR 正文完整；架构图有 figcaption；.md 轨纯净</td>
+        <td><span class="probe-ok">较强</span> — SSR 正文完整；架构图有 figcaption；.md 轨纯净<br><a href="#ev-dim3" style="font-size:11px;">→ 见截图证明</a></td>
         <td><span class="probe-fail">弱</span> — 图意/热区丢失；Tab 隐藏安装命令；代码行号污染</td>
         <td><span class="cmp-win">NVIDIA 更好</span></td>
       </tr>
       <tr>
         <td>机器层是否读得顺</td>
-        <td><span class="probe-ok">强</span> — 官方双轨 Markdown；目录结构（Part 1–5）清晰</td>
+        <td><span class="probe-ok">强</span> — 官方双轨 Markdown；目录结构（Part 1–5）清晰<br><a href="#ev-dim4" style="font-size:11px;">→ 见截图证明</a></td>
         <td><span class="probe-fail">弱</span> — ~224KB 渲染噪声；锚文本「LINK」；无可用机器源</td>
         <td><span class="cmp-win">NVIDIA 更好</span></td>
       </tr>
     </tbody>
   </table>
+
+  <div class="cmp-evidence" id="ev-proof">
+    <div class="cmp-section-label">截图证明 · 对比维度实证</div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">以下截图来自 2026-07-14 实测（Chrome headless）。左侧偏 NVIDIA，右侧偏昇腾社区。</p>
+
+    <div class="cmp-evidence-title" id="ev-dim1">① 机器能不能发现文档</div>
+    <div class="cmp-evidence-grid">
+      <figure class="cmp-evidence-card">
+        <img src="evidence/dim1-nv-llms.png" alt="NVIDIA CUDA llms.txt 200 产品级机器目录截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA</span><code>/cuda/llms.txt</code> 返回 200，按 Install / Programming / Architecture 分组，链到 <code>.html.md</code></figcaption>
+      </figure>
+      <figure class="cmp-evidence-card">
+        <img src="evidence/dim1-asc-llms.png" alt="昇腾社区 llms.txt 404 截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--asc">昇腾</span><code>https://www.hiascend.com/llms.txt</code> 实测 <strong>HTTP 404</strong>，无产品级机器目录</figcaption>
+      </figure>
+      <figure class="cmp-evidence-card">
+        <img src="evidence/dim1-nv-robots.png" alt="NVIDIA robots.txt AI 友好截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA</span><code>robots.txt</code> 明确面向 LLM/AI crawler，<code>Allow: /</code>，并列出多份 sitemap</figcaption>
+      </figure>
+      <figure class="cmp-evidence-card">
+        <img src="evidence/dim1-asc-robots.png" alt="昇腾 robots.txt Disallow doc_center 截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--asc">昇腾</span><code>robots.txt</code> 含 <strong>Disallow: /doc_center/</strong> —— 机器源路径被屏蔽（已高亮）</figcaption>
+      </figure>
+    </div>
+
+    <div class="cmp-evidence-title" id="ev-dim2">② 版本 / 元数据是否可信</div>
+    <div class="cmp-evidence-grid">
+      <figure class="cmp-evidence-card cmp-evidence-card--wide">
+        <img src="evidence/dim3-nv-prog-model.png" alt="NVIDIA CUDA Programming Guide v13.3 页头版本可见截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA</span>Programming Model 页头可见 <strong>CUDA Programming Guide v13.3</strong>（人读版本清晰）；但仍缺 JSON-LD <code>softwareVersion</code> 机器字段（页面源码抽检无 ld+json）</figcaption>
+      </figure>
+    </div>
+
+    <div class="cmp-evidence-title" id="ev-dim3">③ 内容能不能被 AI 读懂</div>
+    <div class="cmp-evidence-grid">
+      <figure class="cmp-evidence-card cmp-evidence-card--wide">
+        <img src="evidence/dim3-nv-prog-model.png" alt="NVIDIA Programming Model SSR 正文与目录截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA</span>SSR 正文完整（Heterogeneous Systems / GPU Hardware Model）；侧栏与 TOC 稳定，禁 JS curl 仍可得 ~62KB 含正文 HTML。昇腾侧对应问题见研究站实证（图意/Tab/热区），入口：<a href="https://liminshuo.github.io/llm-knowledge-research/" target="_blank">llm-knowledge-research</a></figcaption>
+      </figure>
+      <figure class="cmp-evidence-card cmp-evidence-card--wide">
+        <img src="evidence/dim-asc-research-hub.png" alt="昇腾社区 AI 亲和研究站首页截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--asc">昇腾</span>本对比复用研究站「实测问题」结论：图意未入库、Tab 隐藏、热区丢失、代码行号污染等（P2 读不懂层高发）</figcaption>
+      </figure>
+    </div>
+
+    <div class="cmp-evidence-title" id="ev-dim4">④ 机器层是否读得顺</div>
+    <div class="cmp-evidence-grid">
+      <figure class="cmp-evidence-card">
+        <img src="evidence/dim4-nv-md.png" alt="NVIDIA html.md 双轨返回真实 Markdown 截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA</span><code>…/index.html.md</code> 返回 <code>text/markdown</code> 实体（真双轨），RAG 可绕开渲染壳噪声</figcaption>
+      </figure>
+      <figure class="cmp-evidence-card">
+        <img src="evidence/dim4-nv-guide-index.png" alt="NVIDIA CUDA Guide Part 1-5 目录结构截图" loading="lazy">
+        <figcaption><span class="cmp-evidence-tag cmp-evidence-tag--nv">NVIDIA</span>Guide 首页 Part 1–5 导学结构清晰，标题承担导航语义</figcaption>
+      </figure>
+    </div>
+  </div>
 
   <!-- ② 对比前提 -->
   <h2>② 对比前提 · 怎么比、比到什么深度</h2>
