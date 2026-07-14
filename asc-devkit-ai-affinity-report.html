@@ -158,6 +158,19 @@
   .cmp-action-card--shared { border-top: 3px solid var(--p0); }
   .cmp-action-card--ascend { border-top: 3px solid #f97316; }
   .cmp-action-card--gitcode { border-top: 3px solid var(--accent); }
+  .cmp-action-card--nv { border-top: 3px solid #76b900; }
+  .cmp-legend-nv::before,
+  .cmp-legend-ascend-site::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .cmp-legend-nv::before { background: #76b900; }
+  .cmp-legend-ascend-site::before { background: #f97316; }
   .cmp-layer-row td:first-child { font-weight: 600; white-space: nowrap; }
   details.cmp-appendix { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-top: 32px; }
   details.cmp-appendix summary { padding: 14px 18px; cursor: pointer; font-weight: 600; font-size: 13px; color: var(--text-muted); list-style: none; }
@@ -185,6 +198,7 @@
       <button class="nav-tab" onclick="showTab('issues')">② 实测问题</button>
       <button class="nav-tab" onclick="showTab('improve')">③ 改造建议</button>
       <button class="nav-tab" onclick="showTab('compare')">④ 平台对比</button>
+      <button class="nav-tab" onclick="showTab('nvcompare')">⑤ NV vs 昇腾</button>
     </div>
   </div>
 </nav>
@@ -1628,12 +1642,315 @@
 
 </div><!-- /tab-compare -->
 
+
+<!-- ═══════════════════════════════════════════
+     菜单 5 · NVIDIA vs 昇腾社区（四层定性 + 典型问题）
+════════════════════════════════════════════ -->
+<div id="tab-nvcompare" class="page">
+
+  <h1>NVIDIA CUDA vs 昇腾社区 · AI 亲和对比</h1>
+  <p style="color:var(--text-muted); margin-bottom:28px;">四层定性对比 · 典型问题对照 · 2026-07-14</p>
+
+  <!-- ① 一页结论 -->
+  <div class="cmp-section-label">① 一页结论 · 30 秒读懂</div>
+  <div class="cmp-verdict">
+    <p><strong>比的是什么？</strong>同属「GPU/NPU 编程指南」场景：NVIDIA 以 <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/index.html" target="_blank">CUDA Programming Guide</a> 为代表；昇腾以 <a href="https://www.hiascend.com" target="_blank">hiascend.com</a> Ascend C / CANN 官方渲染文档为代表。</p>
+    <p><strong>谁整体更强？</strong><span class="cmp-win">NVIDIA 在「抓得到 / 有机器源」上明显领先</span>（真 <code>llms.txt</code> + <code>.html.md</code> 双轨返回真实 Markdown）；昇腾社区在<strong>内容语义深度</strong>上并非全输，但典型问题集中在图/Tab/热区与 robots 封源，导致 RAG 经常「找不到官方」或「读丢关键步骤」。</p>
+    <p><strong>昇腾优先学什么？</strong>先对齐 NVIDIA 的机器发现层：部署产品线 <code>llms.txt</code>、放行 source、提供可直接抓取的 Markdown/纯文本轨。</p>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>对比维度</th><th>NVIDIA CUDA 文档</th><th>昇腾社区（hiascend）</th><th>一句话</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>机器能不能发现文档</td>
+        <td><span class="probe-ok">强</span> — 站级 + CUDA 产品级 <code>llms.txt</code>；robots 明确面向 AI 爬虫 Allow</td>
+        <td><span class="probe-fail">弱</span> — <code>llms.txt</code> 404；robots Disallow source</td>
+        <td><span class="cmp-win">NVIDIA 更好</span></td>
+      </tr>
+      <tr>
+        <td>版本 / 元数据是否可信</td>
+        <td><span class="probe-warn">中</span> — 正文可检索，但抽样页缺 JSON-LD / softwareVersion</td>
+        <td><span class="probe-fail">弱</span> — 8.x 与 9.0 混用；联网官方信源占比不稳</td>
+        <td><span class="cmp-win">NVIDIA 略好</span></td>
+      </tr>
+      <tr>
+        <td>内容能不能被 AI 读懂</td>
+        <td><span class="probe-ok">较强</span> — SSR 正文完整；架构图有 figcaption；.md 轨纯净</td>
+        <td><span class="probe-fail">弱</span> — 图意/热区丢失；Tab 隐藏安装命令；代码行号污染</td>
+        <td><span class="cmp-win">NVIDIA 更好</span></td>
+      </tr>
+      <tr>
+        <td>机器层是否读得顺</td>
+        <td><span class="probe-ok">强</span> — 官方双轨 Markdown；目录结构（Part 1–5）清晰</td>
+        <td><span class="probe-fail">弱</span> — ~224KB 渲染噪声；锚文本「LINK」；无可用机器源</td>
+        <td><span class="cmp-win">NVIDIA 更好</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ② 对比前提 -->
+  <h2>② 对比前提 · 怎么比、比到什么深度</h2>
+  <div class="card" style="margin-bottom:16px;">
+    <table>
+      <tr><td style="color:var(--text-muted);width:130px;">场景对齐</td><td>异构编程入门 → 编程模型 → 环境/安装 → Kernel/算子开发 → 验证与参考</td></tr>
+      <tr><td style="color:var(--text-muted);">NVIDIA</td><td><a href="https://docs.nvidia.com/cuda/cuda-programming-guide/index.html" target="_blank">docs.nvidia.com/cuda/cuda-programming-guide</a> · 抽样页含 Programming Model、Quick Start / Installation（经 llms.txt 索引）</td></tr>
+      <tr><td style="color:var(--text-muted);">昇腾社区</td><td>hiascend.com CANN / Ascend C 文档 · 复用研究站 14 项症状 + 站点探测结论（<a href="https://liminshuo.github.io/llm-knowledge-research/" target="_blank">llm-knowledge-research</a>）</td></tr>
+      <tr><td style="color:var(--text-muted);">对比深度</td><td><strong>四层定性 + 典型问题</strong>（不做 NVIDIA 全量 35 条打分；不与 GitCode 数字混比）</td></tr>
+    </table>
+  </div>
+  <div class="cmp-note">
+    <strong>方法论：</strong>NVIDIA 侧 = 站点探测（C）+ 禁 JS / DOM 抽查（B/D）+ 机器源抽测（.md）+ 联网检索验证（A）；昇腾侧 = 既有研究站实证映射到同一四层。下表「典型问题」是对齐用的案例，不是完整审计清单。
+  </div>
+
+  <p style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">四层 = AI 读文档的失败路径：</p>
+  <div class="cmp-flow">
+    <div class="cmp-flow-step">
+      <div class="cmp-flow-q">用户提问</div>
+      <div class="cmp-flow-layer">能不能找到？</div>
+      <div style="font-size:11px;color:var(--p0);margin-top:4px;">P0 · 抓不到</div>
+    </div>
+    <div class="cmp-flow-step">
+      <div class="cmp-flow-q">找到了</div>
+      <div class="cmp-flow-layer">版本对不对？</div>
+      <div style="font-size:11px;color:var(--p1);margin-top:4px;">P1 · 找不准</div>
+    </div>
+    <div class="cmp-flow-step">
+      <div class="cmp-flow-q">版本对了</div>
+      <div class="cmp-flow-layer">图/表/代码能读懂吗？</div>
+      <div style="font-size:11px;color:var(--p2);margin-top:4px;">P2 · 读不懂</div>
+    </div>
+    <div class="cmp-flow-step">
+      <div class="cmp-flow-q">读懂了</div>
+      <div class="cmp-flow-layer">结构清晰吗？</div>
+      <div style="font-size:11px;color:var(--p3);margin-top:4px;">P3 · 读不顺</div>
+    </div>
+  </div>
+
+  <!-- ③ 四层 + 典型问题 -->
+  <h2>③ 四层对齐 · 典型问题对照</h2>
+  <div class="cmp-legend-inline" style="margin-bottom:14px;">
+    <span class="cmp-legend-nv" style="display:inline-flex;align-items:center;">NVIDIA CUDA</span>
+    <span class="cmp-legend-ascend-site" style="display:inline-flex;align-items:center;">昇腾社区</span>
+  </div>
+
+  <table class="cmp-layer-row">
+    <thead>
+      <tr>
+        <th>失效层</th>
+        <th>典型问题（用户侧感知）</th>
+        <th>NVIDIA CUDA</th>
+        <th>昇腾社区</th>
+        <th>谁更好</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-p0">P0 抓不到</span></td>
+        <td>
+          <strong>典型问：</strong>站有没有给 AI 的机器目录？爬虫能不能拿到 Markdown？<br>
+          <span style="font-size:12px;color:var(--text-muted)">关联原则 #1 #2 #24</span>
+        </td>
+        <td>
+          ✓ <code>/llms.txt</code> 与 <code>/cuda/llms.txt</code> 均 200，按产品/场景分组链接<br>
+          ✓ robots 写明面向 AI crawler，<code>Allow: /</code>，带 Content-Signal<br>
+          ✓ 双轨：<code>…/index.html.md</code> 返回 <code>text/markdown</code> 实体（实测 4KB+ 真 MD）<br>
+          △ 根路径 <code>/sitemap.xml</code> 404，但 robots 已挂多份 sitemap 索引
+        </td>
+        <td>
+          ✗ <code>llms.txt</code> 404<br>
+          ✗ robots Disallow <code>/doc_center/</code>（source 被封）<br>
+          ✗ 机器源不可用；.md URL 常返回 SPA 壳<br>
+          △ 有渲染页正文，但发现层失效
+        </td>
+        <td><span class="cmp-win">NVIDIA</span><br><span style="font-size:11px;color:var(--text-muted)">差距最大：NVIDIA「主动喂 AI」；昇腾「有源不让抓」</span></td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-p1">P1 找不准</span></td>
+        <td>
+          <strong>典型问：</strong>这是哪个版本的编程指南？联网回答会不会飘到社区二手帖？<br>
+          <span style="font-size:12px;color:var(--text-muted)">关联原则 #6 #7 #8</span>
+        </td>
+        <td>
+          ✓ 站点内容可被搜索引擎稳定召回（Programming Model / Memory Model 等）<br>
+          △ 抽样 HTML 无 JSON-LD、<code>softwareVersion</code>、<code>&lt;time&gt;</code><br>
+          △ 版本更多靠 Toolkit/发行版上下文，页头机器字段弱
+        </td>
+        <td>
+          ✗ 8.x 与 9.0 文档并存，易版本漂移<br>
+          ✗ JSON-LD 残缺；联网问答官方占比曾测到 22%–67%<br>
+          ✗ 「最新版」语义模糊，机器难区分主推版本
+        </td>
+        <td><span class="cmp-win">NVIDIA 略好</span><br><span style="font-size:11px;color:var(--text-muted)">两边元数据都可补；昇腾更易混版本</span></td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-p2">P2 读不懂</span></td>
+        <td>
+          <strong>典型问：</strong>架构图 / 线程块示意图是什么意思？离线安装命令在哪个 Tab？代码能不能直接复制？<br>
+          <span style="font-size:12px;color:var(--text-muted)">关联原则 #14 #15 #19 #22</span>
+        </td>
+        <td>
+          ✓ Programming Model 页 SSR：~66 段正文、多图带<strong>描述性 alt + figcaption</strong>（如 Grid of Thread Blocks）<br>
+          ✓ .md 轨含图意语境，chunk 不易只剩文件名<br>
+          △ 少量导航装饰图 alt 仍为站点名「CUDA Programming Guide - Home」
+        </td>
+        <td>
+          ✗ 架构图常只入库文件名（图意丢失）<br>
+          ✗ 热区（area）无文本清单 · 完全丢失<br>
+          ✗ Tab <code>display:none</code> → 离线安装等面板未入库<br>
+          ✗ highlighttable 导致<strong>代码行号污染</strong>
+        </td>
+        <td><span class="cmp-win">NVIDIA</span><br><span style="font-size:11px;color:var(--text-muted)">昇腾「读不懂」层症状最密</span></td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-p3">P3 读不顺</span></td>
+        <td>
+          <strong>典型问：</strong>文档大纲怎么分层？链接点过去是什么？HTML 噪声会不会切坏 chunk？<br>
+          <span style="font-size:12px;color:var(--text-muted)">关联原则 #16 #17 #24 #27</span>
+        </td>
+        <td>
+          ✓ Guide 自带 Part 1–5 导学结构，标题任务明确<br>
+          ✓ 优先喂 .md 时可绕开渲染壳噪声<br>
+          △ HTML 仍含导航/TOC，但相对可控
+        </td>
+        <td>
+          ✗ 渲染页约 224KB，导航/壳层噪声大<br>
+          ✗ 链接锚文本「LINK / 点击这里」类劣化<br>
+          ✗ 无可用双轨 → RAG 被迫吃脏 HTML
+        </td>
+        <td><span class="cmp-win">NVIDIA</span><br><span style="font-size:11px;color:var(--text-muted)">双轨策略直接决定 chunk 干净度</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ④ 同场景问句 -->
+  <h2>④ 同场景问句 · 典型问答对照</h2>
+  <div class="cmp-legend-inline">
+    <span><span class="cmp-grade cmp-grade--ok" style="font-size:14px;">✓</span> 能答对 / 信源足</span>
+    <span><span class="cmp-grade cmp-grade--warn" style="font-size:14px;">△</span> 部分答对</span>
+    <span><span class="cmp-grade cmp-grade--fail" style="font-size:14px;">✗</span> 答不出 / 易错</span>
+  </div>
+  <table>
+    <thead>
+      <tr><th>旅程</th><th>代表问句（两端对齐）</th><th style="text-align:center">NVIDIA</th><th style="text-align:center">昇腾社区</th><th>典型差异</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>① 感知了解</td>
+        <td>编程模型里 Host / Device / Kernel 分别是什么？架构图怎么读？</td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--ok">✓</span></td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--fail">✗</span></td>
+        <td>NV 有正文 + figcaption；昇腾图意常未入库</td>
+      </tr>
+      <tr>
+        <td>② 学习路径</td>
+        <td>官方推荐从哪一章开始读到高级特性？</td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--ok">✓</span></td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--warn">△</span></td>
+        <td>NV Part 1–5 路径写在首页；昇腾跨页关系弱</td>
+      </tr>
+      <tr>
+        <td>③ 环境准备</td>
+        <td>Linux 首次安装 / 离线安装命令在哪？</td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--ok">✓</span></td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--fail">✗</span></td>
+        <td>NV 由 llms.txt 链到 Install Guide；昇腾 Tab 内容易丢</td>
+      </tr>
+      <tr>
+        <td>③ 版本确认</td>
+        <td>当前文档对应哪一版 Toolkit / CANN？</td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--warn">△</span></td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--fail">✗</span></td>
+        <td>两边页级元数据都弱；昇腾更易 8.x/9.0 混答</td>
+      </tr>
+      <tr>
+        <td>④ 核心开发</td>
+        <td>线程块如何映射到 SM？共享内存 / Unified Memory 边界？</td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--ok">✓</span></td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--warn">△</span></td>
+        <td>NV 文本可检索性强；昇腾依赖渲染页质量</td>
+      </tr>
+      <tr>
+        <td>⑤ 机器入库</td>
+        <td>有没有可直接喂 RAG 的 Markdown / llms 目录？</td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--ok">✓</span></td>
+        <td style="text-align:center"><span class="cmp-grade cmp-grade--fail">✗</span></td>
+        <td>这是差距最大的典型问题：NV 已产品化；昇腾缺失</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ⑤ 行动清单 -->
+  <h2>⑤ 各自先改什么 · 行动清单</h2>
+  <div class="cmp-action-grid">
+    <div class="cmp-action-card cmp-action-card--shared">
+      <h4><span class="badge badge-p0">P0</span> 共同短板（都要补）</h4>
+      <ul>
+        <li><strong>页级版本元数据</strong>：JSON-LD / <code>softwareVersion</code> / <code>dateModified</code>，减少「最新版」口语</li>
+        <li><strong>装饰图 alt 规范化</strong>：导航 logo 可用空 alt；信息图必须描述性 alt + 图意</li>
+      </ul>
+    </div>
+    <div class="cmp-action-card cmp-action-card--ascend">
+      <h4><span class="badge badge-p0">P0</span> 昇腾应优先对齐 NVIDIA</h4>
+      <ul>
+        <li>部署站级 / 产品级 <code>llms.txt</code>（参考 NV 的场景化链写法）</li>
+        <li>robots <strong>放行</strong> <code>/doc_center/source/</code>，sitemap 收录 source</li>
+        <li>提供真实 Markdown/纯文本双轨（不要 SPA 壳）</li>
+        <li>修 Tab 隐藏语义；补图意转写与热区文本清单；去掉代码行号入库</li>
+      </ul>
+    </div>
+    <div class="cmp-action-card cmp-action-card--nv">
+      <h4><span class="badge badge-p1">P1</span> NVIDIA 可继续加强</h4>
+      <ul>
+        <li>抽样页补 TechArticle / HowTo JSON-LD</li>
+        <li>页头固定展示 Toolkit 主推版本 badge（机器 + 人读）</li>
+        <li>统一装饰图 vs 信息图的 alt 策略</li>
+        <li>根 <code>/sitemap.xml</code> 可做跳转/索引，降低发现成本</li>
+      </ul>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>总体判断</th><th>结论</th></tr></thead>
+    <tbody>
+      <tr><td style="width:220px">谁更适合 RAG 入库（现状）</td><td><span class="cmp-win">NVIDIA</span> — llms.txt + 真实 .md 双轨已闭环；昇腾卡在发现层与隐藏语义</td></tr>
+      <tr><td>昇腾最大短板</td><td><span class="cmp-lose">P0 抓不到 + P2 读不懂</span> — 封源、图/Tab/热区、行号污染叠加</td></tr>
+      <tr><td>NVIDIA 可复制经验</td><td>① 产品级 llms.txt 目录 ② <code>.html.md</code> 真双轨 ③ robots 对 AI crawler 声明友好 ④ 架构图 figcaption</td></tr>
+      <tr><td>本页范围之外</td><td>GitCode asc-devkit 见「④ 平台对比」；本菜单只对比 <strong>NVIDIA 官网 vs 昇腾社区官网</strong></td></tr>
+    </tbody>
+  </table>
+
+  <details class="cmp-appendix">
+    <summary>附录 · NVIDIA 实测证据摘要（站点探测）</summary>
+    <div class="cmp-appendix-body">
+      <table>
+        <thead><tr><th>检测项</th><th>结果</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>https://docs.nvidia.com/llms.txt</code></td><td><span class="probe-ok">✓ 200</span></td><td>产品线入口索引（含 CUDA Toolkit → /cuda/llms.txt）</td></tr>
+          <tr><td><code>https://docs.nvidia.com/cuda/llms.txt</code></td><td><span class="probe-ok">✓ 200</span></td><td>按 Install / Programming / Architecture / API 分组，大量链到 <code>.html.md</code></td></tr>
+          <tr><td><code>/robots.txt</code></td><td><span class="probe-ok">✓ AI 友好</span></td><td>注释写明引导 LLM 到 Clean Markdown；Allow:/；多 Sitemap</td></tr>
+          <tr><td><code>/sitemap.xml</code></td><td><span class="probe-warn">△ 404</span></td><td>根路径空缺；真正 sitemap 写在 robots 里</td></tr>
+          <tr><td><code>…/index.html.md</code></td><td><span class="probe-ok">✓ text/markdown</span></td><td>Guide 首页与 Programming Model 页均返回真实 Markdown</td></tr>
+          <tr><td>Programming Model HTML（禁 JS curl）</td><td><span class="probe-ok">✓ ~62KB</span></td><td>66 段 &lt;p&gt;、16 标题、多图带 figcaption；有正文 SSR</td></tr>
+          <tr><td>JSON-LD / &lt;time&gt;</td><td><span class="probe-warn">△ 缺失</span></td><td>抽样页未检出结构化版本字段</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px; color:var(--text-muted); margin-top:12px;">
+        昇腾侧对照来源：<a href="https://liminshuo.github.io/llm-knowledge-research/" target="_blank">社区 AI 亲和分析（研究站）</a> · NVIDIA 抽测日期 2026-07-14 · 对比报告菜单⑤
+      </p>
+    </div>
+  </details>
+
+</div><!-- /tab-nvcompare -->
+
 <script>
 function showTab(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  const idx = {overview:0, issues:1, improve:2, compare:3}[name];
+  const idx = {overview:0, issues:1, improve:2, compare:3, nvcompare:4}[name];
   document.querySelectorAll('.nav-tab')[idx].classList.add('active');
 }
 </script>
