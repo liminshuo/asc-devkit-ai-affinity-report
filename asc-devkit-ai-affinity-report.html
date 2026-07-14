@@ -1668,7 +1668,7 @@
   <div class="cmp-section-label">① 一页结论 · 30 秒读懂</div>
   <div class="cmp-verdict">
     <p><strong>比的是什么？</strong>同属「GPU/NPU 编程指南」场景：NVIDIA 以 <a href="https://docs.nvidia.com/cuda/cuda-programming-guide/index.html" target="_blank">CUDA Programming Guide</a> 为代表；昇腾以 <a href="https://www.hiascend.com" target="_blank">hiascend.com</a> Ascend C / CANN 官方渲染文档为代表。</p>
-    <p><strong>谁整体更强？</strong><span class="cmp-win">NVIDIA 在「抓得到 / 有机器源」上明显领先</span>（真 <code>llms.txt</code> + <code>.html.md</code> 双轨返回真实 Markdown）；昇腾社区在<strong>内容语义深度</strong>上并非全输，但典型问题集中在图/Tab/热区与 robots 封源，导致 RAG 经常「找不到官方」或「读丢关键步骤」。</p>
+    <p><strong>谁整体更强？</strong><span class="cmp-win">NVIDIA 在 14 项症状同题对照中明显领先</span>（约 11✓ / 3△ / 0✗）；昇腾短板集中在机器发现、图/热区/Tab、代码行号与 HTML 双轨。</p>
     <p><strong>昇腾优先学什么？</strong>先对齐 NVIDIA 的机器发现层：部署产品线 <code>llms.txt</code>、放行 source、提供可直接抓取的 Markdown/纯文本轨。</p>
   </div>
 
@@ -1895,8 +1895,145 @@
     </tbody>
   </table>
 
-  <!-- ④ 同场景问句 -->
-  <h2>④ 同场景问句 · 典型问答对照</h2>
+  <!-- ④ 14 项症状同题对照 -->
+  <h2>④ 14 项症状同题对照 · Skill symptoms-14</h2>
+  <div class="cmp-note">
+    对同一典型问句：<strong>NVIDIA</strong> = 2026-07-14 新实测（docs.nvidia.com/cuda）；<strong>昇腾社区</strong> = 研究站 14 项症状结论映射（hiascend.com）。状态：✓ 不构成问题 / △ 部分存在 / ✗ 明确命中症状。
+  </div>
+  <div class="cmp-legend-inline" style="margin-bottom:12px;">
+    <span><span class="cmp-grade cmp-grade--ok" style="font-size:14px;">✓</span> 不构成问题</span>
+    <span><span class="cmp-grade cmp-grade--warn" style="font-size:14px;">△</span> 部分存在</span>
+    <span><span class="cmp-grade cmp-grade--fail" style="font-size:14px;">✗</span> 明确命中症状</span>
+  </div>
+  <div style="overflow-x:auto;">
+  <table class="cmp-layer-row">
+    <thead>
+      <tr>
+        <th style="min-width:90px">失效层</th>
+        <th style="min-width:120px">症状</th>
+        <th style="min-width:160px">同一实测问句</th>
+        <th>NVIDIA 实测</th>
+        <th>昇腾社区实测</th>
+        <th style="min-width:70px">谁更好</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td rowspan="3"><span class="badge badge-p0">抓不到</span></td>
+        <td><strong>1. 机器发现层</strong></td>
+        <td>站里有没有 llms.txt？爬虫能不能发现机器源？</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> <code>/llms.txt</code>、<code>/cuda/llms.txt</code> 均 200；robots 声明 AI crawler <code>Allow: /</code>，并 Allow <code>*.md</code> / <code>llms.txt</code></td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> <code>llms.txt</code> 404；robots <code>Disallow: /doc_center/</code> 封机器源</td>
+        <td><span class="cmp-win">NVIDIA</span></td>
+      </tr>
+      <tr>
+        <td><strong>2. 检索阶段</strong></td>
+        <td>搜「CUDA / Ascend C 编程模型」时，官方文档占引用的比例如何？</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> 联网检索前两条即为 docs.nvidia.com Programming Model 官方页（另有 archive/百科），官方主导</td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> 研究站实测官方信源占比曾仅 22%–67%，易被社区二手内容稀释</td>
+        <td><span class="cmp-win">NVIDIA</span></td>
+      </tr>
+      <tr>
+        <td><strong>3. 生成阶段</strong></td>
+        <td>模型回答的 Host/Device/Kernel 是否与官方表述一致？</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> 可召回官方表述（host/device/kernel/thread block/grid），与 Guide 正文一致</td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> 内容本身可答，但受发现层/版本混用影响，生成阶段易掺入过时页</td>
+        <td><span class="cmp-win">NVIDIA</span></td>
+      </tr>
+      <tr>
+        <td rowspan="3"><span class="badge badge-p1">找不准</span></td>
+        <td><strong>4. 版本滞后 &amp; 多版本并存</strong></td>
+        <td>这是哪个版本的文档？会不会混新旧版？</td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> 页头可见 <strong>v13.3</strong>；同时存在 <code>/archive/13.2.1/</code>、<code>/archive/12.6.2/</code> 等路径——多版本并存但路径分仓清晰</td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> 8.x 与 9.0 混用风险高；「最新版」口语多，机器难锚定主推版</td>
+        <td><span class="cmp-win">NVIDIA</span></td>
+      </tr>
+      <tr>
+        <td><strong>5. 页级元数据未结构化</strong></td>
+        <td>page head 里有版本号 / JSON-LD 吗？</td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> 人读标题有 v13.3；抽检 Programming Model / Language Extensions <strong>无 JSON-LD</strong>、<code>softwareVersion</code>、<code>&lt;time&gt;</code></td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> JSON-LD 残缺；版本/日期机器字段缺失（研究站已证）</td>
+        <td><span class="cmp-tie">平偏 NV</span></td>
+      </tr>
+      <tr>
+        <td><strong>6. 跨页关系未显性化</strong></td>
+        <td>「下一篇」是什么？学习路径怎么安排？</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> Guide 首页明确 Part 1–5；页内 breadcrumb + prev/next；侧栏 TOC 稳定</td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> 跨页关系弱；模块归属依赖导航猜测（研究站「跨页关系未显性化」）</td>
+        <td><span class="cmp-win">NVIDIA</span></td>
+      </tr>
+      <tr>
+        <td rowspan="7"><span class="badge badge-p2">读不懂</span></td>
+        <td><strong>7. 图片语义缺失</strong></td>
+        <td>架构图 / 线程块图是什么意思？</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> 信息图有描述性 alt（如 Grid of Thread Blocks）+ <strong>figcaption</strong>（页内 16 处）；.md 保留图意语境</td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> 图意常未入库，chunk 仅见文件名</td>
+        <td><span class="cmp-win">NVIDIA</span></td>
+      </tr>
+      <tr>
+        <td><strong>8. 热区信息缺失</strong></td>
+        <td>图中各热区分别链接到哪里？</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span>（本采样 Guide 页 <code>&lt;map&gt;/&lt;area&gt;=0</code>）无热区依赖 → <strong>不适用命中</strong>；未发现「热区丢失」症状</td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> 热区无文本清单（研究站记 28 个 area 类问题）· 完全丢失</td>
+        <td><span class="cmp-win">NVIDIA</span></td>
+      </tr>
+      <tr>
+        <td><strong>9. 表格语义缺失</strong></td>
+        <td>某 API/内存说明表里各列分别表示什么？</td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> Language Extensions 有表 + 部分 caption；但 MD/HTML 表中可见 <strong>✅❌</strong>（17/24），缺 th scope——符号可劣化语义</td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> 表格语义劣化（研究站命中）；符号/结构不稳定</td>
+        <td><span class="cmp-tie">略平</span></td>
+      </tr>
+      <tr>
+        <td><strong>10. 代码块语义缺失</strong></td>
+        <td>示例开头几行代码是什么？能直接复制吗？</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> HTML 使用 <code>highlight-cuda</code> + <code>&lt;pre&gt;</code>（158 处），<strong>无 highlighttable / linenos</strong>；.md 为纯净代码围栏</td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> highlighttable 行号混入源码（研究站命中）</td>
+        <td><span class="cmp-win">NVIDIA</span></td>
+      </tr>
+      <tr>
+        <td><strong>11. 链接锚文本无效</strong></td>
+        <td>「点击这里 / LINK」指向哪里？</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> Programming Model 页抽检无 here/click here/LINK 类无效锚文本</td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> 链接锚文本「LINK / 点击这里」类劣化</td>
+        <td><span class="cmp-win">NVIDIA</span></td>
+      </tr>
+      <tr>
+        <td><strong>12. 警示级别缺失</strong></td>
+        <td>这里的 Note / 注意 是什么级别？</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> admonition 标题为真实文本节点（Hint / Note / Warning）</td>
+        <td><span class="cmp-grade cmp-grade--warn">△</span> 警示可见但结构化级别/机器属性常弱（研究站「警示级别缺失」）</td>
+        <td><span class="cmp-win">NVIDIA</span></td>
+      </tr>
+      <tr>
+        <td><strong>13. 隐藏语义缺失</strong></td>
+        <td>Tab 里「离线安装」那一栏命令是什么？</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> Guide 采样页无 tab-pane / display:none 藏正文模式；安装指南在独立文档经 llms.txt 暴露</td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> Tab <code>display:none</code> 导致安装命令未入库（高优症状）</td>
+        <td><span class="cmp-win">NVIDIA</span></td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-p3">读不顺</span></td>
+        <td><strong>14. HTML 适配不足</strong></td>
+        <td>有没有对应的 Markdown / 机器可读源？</td>
+        <td><span class="cmp-grade cmp-grade--ok">✓</span> <code>…html.md</code> 返回 <code>text/markdown</code>（Programming Model 实测 27KB 真 MD）；双轨闭环</td>
+        <td><span class="cmp-grade cmp-grade--fail">✗</span> 机器源被封 / .md 常为 SPA 壳；RAG 被迫吃 ~224KB 脏 HTML</td>
+        <td><span class="cmp-win">NVIDIA</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="stat-grid" style="margin-top:8px;">
+    <div class="stat"><div class="stat-num" style="color:var(--green);">11</div><div class="stat-label">NVIDIA · ✓ 不构成问题</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--yellow);">3</div><div class="stat-label">NVIDIA · △ 部分存在</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--red);">0</div><div class="stat-label">NVIDIA · ✗ 明确命中</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--orange);">~10+</div><div class="stat-label">昇腾 · ✗/△ 命中集中</div></div>
+  </div>
+  <p style="font-size:12px;color:var(--text-muted);">NVIDIA 相对短板集中在 <strong>#5 元数据</strong>、<strong>#4 多版本路径</strong>（可控）、<strong>#9 表格 ✅❌</strong>；昇腾在 P0 发现层 + P2 图/热区/Tab/代码 形成组合短板。</p>
+
+  <!-- ⑤ 同场景问句 -->
+  <h2>⑤ 同场景问句 · 旅程验证（补充）</h2>
   <div class="cmp-legend-inline">
     <span><span class="cmp-grade cmp-grade--ok" style="font-size:14px;">✓</span> 能答对 / 信源足</span>
     <span><span class="cmp-grade cmp-grade--warn" style="font-size:14px;">△</span> 部分答对</span>
@@ -1912,48 +2049,48 @@
         <td>编程模型里 Host / Device / Kernel 分别是什么？架构图怎么读？</td>
         <td style="text-align:center"><span class="cmp-grade cmp-grade--ok">✓</span></td>
         <td style="text-align:center"><span class="cmp-grade cmp-grade--fail">✗</span></td>
-        <td>NV 有正文 + figcaption；昇腾图意常未入库</td>
+        <td>对应症状 3/7：NV 正文+figcaption；昇腾图意常丢</td>
       </tr>
       <tr>
         <td>② 学习路径</td>
         <td>官方推荐从哪一章开始读到高级特性？</td>
         <td style="text-align:center"><span class="cmp-grade cmp-grade--ok">✓</span></td>
         <td style="text-align:center"><span class="cmp-grade cmp-grade--warn">△</span></td>
-        <td>NV Part 1–5 路径写在首页；昇腾跨页关系弱</td>
+        <td>对应症状 6：NV Part 1–5；昇腾跨页弱</td>
       </tr>
       <tr>
         <td>③ 环境准备</td>
         <td>Linux 首次安装 / 离线安装命令在哪？</td>
         <td style="text-align:center"><span class="cmp-grade cmp-grade--ok">✓</span></td>
         <td style="text-align:center"><span class="cmp-grade cmp-grade--fail">✗</span></td>
-        <td>NV 由 llms.txt 链到 Install Guide；昇腾 Tab 内容易丢</td>
+        <td>对应症状 13：NV 独立 Install Guide；昇腾 Tab 隐藏</td>
       </tr>
       <tr>
         <td>③ 版本确认</td>
         <td>当前文档对应哪一版 Toolkit / CANN？</td>
         <td style="text-align:center"><span class="cmp-grade cmp-grade--warn">△</span></td>
         <td style="text-align:center"><span class="cmp-grade cmp-grade--fail">✗</span></td>
-        <td>两边页级元数据都弱；昇腾更易 8.x/9.0 混答</td>
+        <td>对应症状 4/5：NV 有 v13.3 但缺 JSON-LD</td>
       </tr>
       <tr>
         <td>④ 核心开发</td>
-        <td>线程块如何映射到 SM？共享内存 / Unified Memory 边界？</td>
+        <td>线程块如何映射到 SM？共享内存说明表怎么读？</td>
         <td style="text-align:center"><span class="cmp-grade cmp-grade--ok">✓</span></td>
         <td style="text-align:center"><span class="cmp-grade cmp-grade--warn">△</span></td>
-        <td>NV 文本可检索性强；昇腾依赖渲染页质量</td>
+        <td>对应症状 9/10：NV 代码干净；表有 ✅❌ 瑕疵</td>
       </tr>
       <tr>
         <td>⑤ 机器入库</td>
         <td>有没有可直接喂 RAG 的 Markdown / llms 目录？</td>
         <td style="text-align:center"><span class="cmp-grade cmp-grade--ok">✓</span></td>
         <td style="text-align:center"><span class="cmp-grade cmp-grade--fail">✗</span></td>
-        <td>这是差距最大的典型问题：NV 已产品化；昇腾缺失</td>
+        <td>对应症状 1/14：差距最大</td>
       </tr>
     </tbody>
   </table>
 
-  <!-- ⑤ 行动清单 -->
-  <h2>⑤ 各自先改什么 · 行动清单</h2>
+  <!-- ⑥ 行动清单 -->
+  <h2>⑥ 各自先改什么 · 行动清单</h2>
   <div class="cmp-action-grid">
     <div class="cmp-action-card cmp-action-card--shared">
       <h4><span class="badge badge-p0">P0</span> 共同短板（都要补）</h4>
@@ -1974,10 +2111,10 @@
     <div class="cmp-action-card cmp-action-card--nv">
       <h4><span class="badge badge-p1">P1</span> NVIDIA 可继续加强</h4>
       <ul>
-        <li>抽样页补 TechArticle / HowTo JSON-LD</li>
-        <li>页头固定展示 Toolkit 主推版本 badge（机器 + 人读）</li>
+        <li>抽样页补 TechArticle / HowTo JSON-LD（症状 5）</li>
+        <li>页头固定 Toolkit 版本 badge + 机器字段（症状 4/5）</li>
+        <li>表格 ✅❌ 改为「支持/不支持」文字（症状 9）</li>
         <li>统一装饰图 vs 信息图的 alt 策略</li>
-        <li>根 <code>/sitemap.xml</code> 可做跳转/索引，降低发现成本</li>
       </ul>
     </div>
   </div>
